@@ -6,7 +6,7 @@ const app = new Hono()
 const blogService = new BlogService(pino())
 
 
-app.get('/authors', (c) => {
+app.get('/authors', async (c) => {
 	const result = await blogService.getBloggers()
 
 	return c.text('Hello Hono!')
