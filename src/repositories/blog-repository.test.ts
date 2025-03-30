@@ -1,6 +1,9 @@
 import { BlogRepository } from './blog-repository'
 import { prisma } from "@/lib/prisma"
 import { getKeyv } from '../lib/keyv'
+import { postFactory } from '@/mocks/post-factory'
+import { Author, Post } from '@prisma/client'
+import { authorFactory } from '@/mocks/author-factory'
 
 
 describe('BlogRepository', () => {
@@ -17,6 +20,8 @@ describe('BlogRepository', () => {
 			expect(result.isOk()).toBe(true)
 			expect(result.value.title).toBe('title')
 			expect(result.value.content).toBe('content')
+
+			await prisma.post.delete({ where: { id: result.value.id } })
 		})
 	})
 
@@ -26,35 +31,80 @@ describe('BlogRepository', () => {
 			const result = await blogRepository.unpublishBlog({ param: { blogId: createResult.value.id } })
 			expect(result.isOk()).toBe(true)
 			expect(result.value.published).toBe(false)
+			await prisma.post.delete({ where: { id: createResult.value.id } })
+
 		})
 	})
 
 	describe('getBlog', () => {
+		let post: Post
+
+		beforeEach(async () => {
+			post = postFactory.build()
+
+			await prisma.post.create({
+				data: post
+			})
+		})
+
+		afterEach(async () => {
+			await prisma.post.delete({
+				where: {
+					id: post.id
+				}
+			})
+		})
+
 		test('can get a blog', async () => {
-			const createResult = await blogRepository.createBlog({ body: { title: 'title', content: 'content' } })
-			const result = await blogRepository.getBlog({ param: { blogId: createResult.value.id } })
+			const result = await blogRepository.getBlog({ param: { blogId: post.id } })
 			expect(result.isOk()).toBe(true)
 			expect(result.value.data?.title).toBe('title')
 			expect(result.value.data?.content).toBe('content')
 		})
 
 		test('can retrieve a blog from cache', async () => {
-			const createResult = await blogRepository.createBlog({ body: { title: 'title', content: 'content' } })
-			const noCacheResult = await blogRepository.getBlog({ param: { blogId: createResult.value.id } })
+			const noCacheResult = await blogRepository.getBlog({ param: { blogId: post.id } })
 			expect(noCacheResult.isOk()).toBe(true)
 			expect(noCacheResult.value._cacheHit).toBe(false)
 
-			const result = await blogRepository.getBlog({ param: { blogId: createResult.value.id } })
+			const result = await blogRepository.getBlog({ param: { blogId: post.id } })
 			expect(result.isOk()).toBe(true)
 			expect(result.value._cacheHit).toBe(true)
+
+			await prisma.post.delete({ where: { id: post.id } })
 		})
 	})
 
 	describe('getBlogs', () => {
+		let posts: Post[]
+
+		beforeEach(async () => {
+			const timestamp = new Date();
+			posts = postFactory.buildList(3, {
+				createdAt: timestamp,
+				updatedAt: timestamp,
+				published: true
+			})
+
+			await prisma.post.createMany({
+				data: posts
+			})
+		})
+
+		afterEach(async () => {
+			await prisma.post.deleteMany({
+				where: {
+					id: {
+						in: posts.map(p => p.id)
+					}
+				}
+			})
+		})
+
 		test('can get blogs', async () => {
 			const result = await blogRepository.getBlogs({ query: { published: true } })
 			expect(result.isOk()).toBe(true)
-			expect(result.value.data.length).toBeGreaterThan(0)
+			expect(result.value.data).toEqual(posts)
 		})
 
 		test('can retrieve blogs from cache', async () => {
@@ -69,10 +119,34 @@ describe('BlogRepository', () => {
 	})
 
 	describe('getBloggers', () => {
+		let authors: Author[]
+
+		beforeEach(async () => {
+			const timestamp = new Date();
+			authors = authorFactory.buildList(3, {
+				createdAt: timestamp,
+				updatedAt: timestamp,
+			})
+
+			await prisma.author.createMany({
+				data: authors
+			})
+		})
+
+		afterEach(async () => {
+			await prisma.post.deleteMany({
+				where: {
+					id: {
+						in: authors.map(p => p.id)
+					}
+				}
+			})
+		})
+
 		test('can get bloggers', async () => {
 			const result = await blogRepository.getBloggers()
 			expect(result.isOk()).toBe(true)
-			expect(result.value.data.length).toBeGreaterThan(0)
+			expect(result.value.data).toEqual(authors)
 		})
 
 		test('can retrieve bloggers from cache', async () => {

@@ -12,7 +12,7 @@ export default async function globalSetup() {
 	process.env.VALKEY_URL = valkeyUrl;
 
 	// Run migrations and seed your database
-	execSync("npx prisma db push && npx prisma db seed", {
+	execSync("npx prisma migrate reset --force --skip-seed", {
 		stdio: "inherit",
 		env: { ...process.env, DATABASE_URL: databaseUrl },
 	});
