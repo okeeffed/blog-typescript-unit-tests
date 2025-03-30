@@ -9,6 +9,7 @@ import {
 	unpublishBlogParam,
 } from '../schemas/schemas';
 import { controller } from '../decorators';
+import { z } from 'zod';
 
 @controller
 export class PostsController extends OpenAPIHono {
@@ -96,11 +97,38 @@ export class PostsController extends OpenAPIHono {
 						},
 					},
 				},
+				404: {
+					description: "Blog not found",
+					content: {
+						"application/json": {
+							schema: z.object({
+								blogId: z.string(),
+								message: z.string(),
+							})
+						},
+					}
+				}
 			},
 		}), async (c) => {
-			const result = await this.blogService.getBlog({ param: c.req.valid('param') });
-			c.res.headers.append('X-Cache-Hit', result.value._cacheHit ? 'true' : 'false');
-			return c.json(result.value.data, 200);
+			const param = c.req.valid('param')
+			const result = await this.blogService.getBlog({ param })
+			return result.match(
+				(value) => {
+					c.res.headers.append('X-Cache-Hit', value._cacheHit ? 'true' : 'false');
+					return c.json(value.data, 200);
+				},
+				(err) => {
+					switch (err._tag) {
+						case "BlogNotFoundError": {
+							return c.json({
+								blogId: param.blogId,
+								message: "Blog post not found"
+							}, 404)
+						}
+					}
+				}
+			)
+
 		});
 	}
 
