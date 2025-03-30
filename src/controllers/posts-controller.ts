@@ -1,6 +1,8 @@
 
-import { Hono } from "hono";
+
+import { OpenAPIHono, createRoute } from '@hono/zod-openapi';
 import { BlogService } from '../services/blog-service';
+import { z } from "@hono/zod-openapi"
 import {
 	postArraySchema,
 	getBlogsRawQuery,
@@ -10,11 +12,9 @@ import {
 	getBlogParam,
 } from '../schemas/schemas';
 import { controller } from '../decorators';
-import { resolver, validator } from "hono-openapi/zod";
-import { describeRoute } from "hono-openapi";
 
 @controller
-export class PostsController extends Hono {
+export class PostsController extends OpenAPIHono {
 	private blogService: BlogService;
 
 	constructor(blogService: BlogService) {
@@ -23,134 +23,118 @@ export class PostsController extends Hono {
 	}
 
 	public list() {
-		return this.get(
-			'/',
-			describeRoute({
-				description: "Fetch all blogs",
-				responses: {
-					200: {
-						description: "Successful response",
-						content: {
-							"application/json": {
-								schema: resolver(postArraySchema),
-							},
+		return this.openapi(createRoute({
+			method: 'get',
+			path: '/',
+			description: "Fetch all blogs",
+			request: {
+				query: getBlogsQuery,
+			},
+			responses: {
+				200: {
+					description: "Successful response",
+					content: {
+						"application/json": {
+							schema: postArraySchema,
 						},
 					},
 				},
-				parameters: [
-					{
-						in: "query",
-						name: "published",
-						required: false,
-					},
-				],
-			}),
-			validator('query', getBlogsRawQuery.pipe(getBlogsQuery)),
+			},
+
+		}),
 			async (c) => {
-				const result = await this.blogService.getBlogs({
-					query: c.req.valid('query'),
-				});
+				const result = await this.blogService.getBlogs({ query: c.req.valid('query') });
 				return c.json(result.value, 200);
-			}
-		);
+			});
 	}
 
 	public create() {
-		return this.post(
-			'/',
-			describeRoute({
-				description: "Create a blog",
-				requestBody: {
+		return this.openapi(createRoute({
+			method: 'post',
+			path: '/',
+			description: "Create a blog",
+			request: {
+				body: {
 					content: {
 						"application/json": {
-							schema: resolver(createBlogBody),
+							schema: createBlogBody,
 						},
 					},
 				},
-				responses: {
-					200: {
-						description: "Successful response",
-						content: {
-							"application/json": {
-								schema: resolver(postSchema),
-							},
+			},
+			responses: {
+				200: {
+					description: "Successful response",
+					content: {
+						"application/json": {
+							schema: postSchema,
 						},
 					},
 				},
-			}),
-			validator('json', createBlogBody),
-			async (c) => {
-				const result = await this.blogService.createBlog({
-					body: c.req.valid('json'),
-				});
-				return c.json(result.value, 200);
-			}
-		);
+			},
+		}), async (c) => {
+			const body = await c.req.json();
+			const result = await this.blogService.createBlog({ body });
+			return c.json(result.value, 200);
+		});
 	}
 
 	public getById() {
-		return this.get(
-			'/:blogId',
-			describeRoute({
-				description: "Fetch a blog",
-				parameters: [
-					{
-						in: "path",
-						name: "blogId",
-						required: true,
-					},
-				],
-				responses: {
-					200: {
-						description: "Successful response",
-						content: {
-							"application/json": {
-								schema: resolver(postSchema),
-							},
+		return this.openapi(createRoute({
+			method: 'get',
+			path: '/:blogId',
+			description: "Fetch a blog",
+			parameters: [
+				{
+					in: "path",
+					name: "blogId",
+					required: true,
+				},
+			],
+			responses: {
+				200: {
+					description: "Successful response",
+					content: {
+						"application/json": {
+							schema: postSchema,
 						},
 					},
 				},
-			}),
-			validator('param', getBlogParam),
-			async (c) => {
-				const result = await this.blogService.getBlog({
-					param: c.req.valid('param'),
-				});
-				return c.json(result.value, 200);
-			}
-		);
+			},
+		}), async (c) => {
+			const param = { blogId: c.req.param('blogId') };
+			const result = await this.blogService.getBlog({ param });
+			return c.json(result.value, 200);
+		});
 	}
 
 	public unpublish() {
-		return this.post(
-			'/:blogId/unpublish',
-			describeRoute({
-				description: "Unpublish a blog",
-				parameters: [
-					{
-						in: "path",
-						name: "blogId",
-						required: true,
-					},
-				],
-				responses: {
-					200: {
-						description: "Successful response",
-						content: {
-							"application/json": {
-								schema: resolver(postSchema),
-							},
+		return this.openapi(createRoute({
+			method: 'post',
+			path: '/:blogId/unpublish',
+			description: "Unpublish a blog",
+			parameters: [
+				{
+					in: "path",
+					name: "blogId",
+					required: true,
+				},
+			],
+			responses: {
+				200: {
+					description: "Successful response",
+					content: {
+						"application/json": {
+							schema: postSchema,
 						},
 					},
 				},
-			}),
-			validator('param', getBlogParam),
-			async (c) => {
-				const result = await this.blogService.unpublishBlog({
-					param: c.req.valid('param'),
-				});
-				return c.json(result.value, 200);
-			}
-		);
+			},
+		}), async (c) => {
+			const param = { blogId: c.req.param('blogId') };
+			const result = await this.blogService.unpublishBlog({ param });
+			return c.json(result.value, 200);
+		});
 	}
 }
+

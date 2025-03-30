@@ -56,11 +56,11 @@ export class BlogRepository {
 	}
 
 	async getBlogs(ctx: { query: GetBlogsQuery }) {
-		const cachedResult = await this.cacheClient.get('blogs');
-		if (cachedResult) {
-			return ok(JSON.parse(cachedResult));
-		}
-
+		// const cachedResult = await this.cacheClient.get('blogs');
+		// if (cachedResult) {
+		// 	return ok(JSON.parse(cachedResult));
+		// }
+		//
 		const blogs = await this.postgresClient.post.findMany({
 			where: {
 				published: ctx.query.published,

@@ -1,9 +1,6 @@
-import { Hono } from "hono"
 import { BlogService } from '../services/blog-service';
 import { authorArraySchema } from '../schemas/schemas';
 import { controller } from '../decorators'
-import { resolver } from "hono-openapi/zod";
-import { describeRoute } from "hono-openapi";
 import { createRoute, OpenAPIHono } from '@hono/zod-openapi'
 
 @controller
@@ -26,7 +23,7 @@ export class AuthorsController extends OpenAPIHono {
 							schema: authorArraySchema,
 						},
 					},
-					description: 'Retrieve the user',
+					description: 'Returns a list of authors',
 				},
 			},
 		}), async (c) => {

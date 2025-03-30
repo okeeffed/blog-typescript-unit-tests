@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "@hono/zod-openapi"
 import type { Author, Post } from '@prisma/client'
 import { TypeEqual, expectType } from 'ts-expect'
 
@@ -59,7 +59,13 @@ export const unpublishBlogParam = z.object({
 export type UnpublishBlogParam = z.infer<typeof unpublishBlogParam>;
 
 export const getBlogParam = z.object({
-	blogId: z.string().uuid(),
+	blogId: z.string().uuid().openapi({
+		param: {
+			in: 'path',
+			required: true,
+			description: 'The ID of the blog',
+		}
+	}),
 });
 export type GetBlogParam = z.infer<typeof getBlogParam>;
 
@@ -78,7 +84,13 @@ export const getBlogsQuery = z.object({
 			default:
 				return undefined;
 		}
-	}, z.boolean().optional()),
+	}, z.boolean().optional().openapi({
+		param: {
+			in: 'query',
+			required: false,
+			description: 'Filter by published status',
+		}
+	})),
 });
 export type GetBlogsQuery = z.infer<typeof getBlogsQuery>;
 
