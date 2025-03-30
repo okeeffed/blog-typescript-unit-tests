@@ -6,6 +6,8 @@ import { BlogService } from "@/services/blog-service";
 import { BlogRepository } from "@/repositories/blog-repository";
 import { RecordsClient } from "@/clients/records-client";
 import { getKeyv } from "@/lib/keyv";
+import { authorArraySchema } from "@/schemas/schemas";
+import { sortBy } from "es-toolkit";
 
 describe("AuthorsController", () => {
 	let authors: Author[]
@@ -24,28 +26,28 @@ describe("AuthorsController", () => {
 		}
 	})
 
-	beforeEach(async () => {
-		const timestamp = new Date()
-		authors = authorFactory.buildList(5, {
-			createdAt: timestamp,
-			updatedAt: timestamp
-		});
-		await prisma.author.createMany({
-			data: authors
-		})
-	})
-
-	afterEach(async () => {
-		await prisma.author.deleteMany({
-			where: {
-				id: {
-					in: authors.map(a => a.id)
-				}
-			}
-		})
-	})
-
 	describe("GET /", () => {
+		beforeEach(async () => {
+			const timestamp = new Date()
+			authors = authorFactory.buildList(5, {
+				createdAt: timestamp,
+				updatedAt: timestamp
+			});
+			await prisma.author.createMany({
+				data: authors
+			})
+		})
+
+		afterEach(async () => {
+			await prisma.author.deleteMany({
+				where: {
+					id: {
+						in: authors.map(a => a.id)
+					}
+				}
+			})
+		})
+
 		test("should return a list of authors", async () => {
 			const response = await app.request('/', {
 				method: "GET",
@@ -59,7 +61,10 @@ describe("AuthorsController", () => {
 				createdAt: a.createdAt.toISOString(),
 				updatedAt: a.updatedAt.toISOString()
 			}))
-			expect(json).toEqual(expectedResponse)
+			const validatedAuthors = authorArraySchema.parse(json)
+			const sortedAuthors = sortBy(validatedAuthors, ['id'])
+			const sortedExpectedAuthors = sortBy(expectedResponse, ['id'])
+			expect(sortedAuthors).toEqual(sortedExpectedAuthors)
 		})
 
 		test("should return cache headers as expected", async () => {

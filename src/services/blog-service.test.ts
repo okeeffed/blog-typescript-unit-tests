@@ -5,7 +5,6 @@ import { BlogService } from "./blog-service"
 import { getKeyv } from "@/lib/keyv"
 import { prisma } from "@/lib/prisma"
 import { CreateBlogBody } from "@/schemas/schemas"
-import { authorsSeedData, publishedPostsSeedData } from "@/mocks/seed-data"
 import { postFactory } from "@/mocks/post-factory"
 import { Author, Post } from "@prisma/client"
 import { authorFactory } from "@/mocks/author-factory"
@@ -143,7 +142,10 @@ describe('BlogService', () => {
 		test('can list all available blogs', async () => {
 			const result = await blogService.getBlogs({ query: { published: true } })
 			expect(result.isOk()).toBe(true)
-			expect(result.value.data).toEqual(publishedPosts)
+
+			const sortedResults = sortBy(result.value.data, ['id'])
+			const sortedPosts = sortBy(publishedPosts, ['id'])
+			expect(sortedResults).toEqual(sortedPosts)
 		})
 	})
 
@@ -175,7 +177,10 @@ describe('BlogService', () => {
 			const result = await blogService.getBloggers()
 
 			expect(result.isOk()).toBe(true)
-			expect(result.value.data).toEqual(authors)
+
+			const sortedResults = sortBy(result.value.data, ['id'])
+			const sortedAuthors = sortBy(authors, ['id'])
+			expect(sortedResults).toEqual(sortedAuthors)
 		})
 
 	})

@@ -9,15 +9,9 @@ beforeAll(async () => {
 	server.listen({ onUnhandledRequest: "bypass" })
 }, 30000)
 
-beforeEach(async () => {
-	// Start transaction
-	await prisma.$executeRaw`BEGIN;`;
-});
 
 afterEach(async () => {
 	server.resetHandlers()
-	// Rollback any transactions
-	await prisma.$executeRaw`ROLLBACK;`;
 	const keyv = getKeyv();
 	if (keyv) {
 		await keyv.clear()

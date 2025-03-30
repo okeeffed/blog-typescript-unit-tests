@@ -6,8 +6,9 @@ import { BlogService } from "@/services/blog-service";
 import { BlogRepository } from "@/repositories/blog-repository";
 import { RecordsClient } from "@/clients/records-client";
 import { getKeyv } from "@/lib/keyv";
-import { postSchema, postSchemaSerialised } from "@/schemas/schemas";
+import { postArraySchema, postSchema, postSchemaSerialised } from "@/schemas/schemas";
 import { faker } from "@faker-js/faker";
+import { sortBy } from "es-toolkit";
 
 describe("PostsController", () => {
 	let posts: Post[]
@@ -62,7 +63,10 @@ describe("PostsController", () => {
 				createdAt: p.createdAt.toISOString(),
 				updatedAt: p.updatedAt.toISOString()
 			}))
-			expect(json).toEqual(expectedResponse)
+			const expectedResponseSerialised = postArraySchema.parse(json)
+			const sortedPosts = sortBy(expectedResponseSerialised, ['id'])
+			const sortedExpectedPosts = sortBy(expectedResponse, ['id'])
+			expect(sortedPosts).toEqual(sortedExpectedPosts)
 		})
 
 		test("should return cache headers as expected", async () => {
