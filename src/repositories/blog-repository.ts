@@ -56,16 +56,19 @@ export class BlogRepository {
 	}
 
 	async getBlogs(ctx: { query: GetBlogsQuery }) {
-		// const cachedResult = await this.cacheClient.get('blogs');
-		// if (cachedResult) {
-		// 	return ok(JSON.parse(cachedResult));
-		// }
-		//
+		const key = 'getBlogs' + JSON.stringify(ctx.query);
+		const cachedResult = await this.cacheClient.get(key);
+		if (cachedResult) {
+			return ok(JSON.parse(cachedResult));
+		}
+
 		const blogs = await this.postgresClient.post.findMany({
 			where: {
 				published: ctx.query.published,
 			},
 		});
+
+		await this.cacheClient.set(key, JSON.stringify(blogs), 1000 * 60 * 5);
 		return ok(blogs);
 	}
 
@@ -80,6 +83,7 @@ export class BlogRepository {
 		}
 
 		const bloggers = await this.postgresClient.author.findMany();
+		await this.cacheClient.set('bloggers', JSON.stringify(bloggers), 1000 * 60 * 5);
 		return ok(bloggers);
 	}
 }
