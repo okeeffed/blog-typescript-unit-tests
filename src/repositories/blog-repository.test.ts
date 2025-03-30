@@ -4,6 +4,7 @@ import { getKeyv } from '../lib/keyv'
 import { postFactory } from '@/mocks/post-factory'
 import { Author, Post } from '@prisma/client'
 import { authorFactory } from '@/mocks/author-factory'
+import { faker } from '@faker-js/faker'
 
 
 describe('BlogRepository', () => {
@@ -58,20 +59,32 @@ describe('BlogRepository', () => {
 		test('can get a blog', async () => {
 			const result = await blogRepository.getBlog({ param: { blogId: post.id } })
 			expect(result.isOk()).toBe(true)
-			expect(result.value.data?.title).toBe('title')
-			expect(result.value.data?.content).toBe('content')
+			result.map(value => {
+				expect(value.data?.title).toBe(post.title)
+				expect(value.data?.content).toBe(post.content)
+			})
 		})
 
 		test('can retrieve a blog from cache', async () => {
 			const noCacheResult = await blogRepository.getBlog({ param: { blogId: post.id } })
 			expect(noCacheResult.isOk()).toBe(true)
-			expect(noCacheResult.value._cacheHit).toBe(false)
+			noCacheResult.map(value => {
+				expect(value._cacheHit).toBe(false)
+			})
 
 			const result = await blogRepository.getBlog({ param: { blogId: post.id } })
 			expect(result.isOk()).toBe(true)
-			expect(result.value._cacheHit).toBe(true)
+			result.map(value => {
+				expect(value._cacheHit).toBe(true)
+			})
+		})
 
-			await prisma.post.delete({ where: { id: post.id } })
+		test('returns BlogNotFoundError when there is no matching blog found', async () => {
+			const result = await blogRepository.getBlog({ param: { blogId: faker.string.uuid() } })
+			expect(result.isErr()).toBe(true)
+			result.mapErr(e => {
+				expect(e._tag).toBe("BlogNotFoundError")
+			})
 		})
 	})
 

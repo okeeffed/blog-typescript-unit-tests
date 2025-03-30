@@ -1,6 +1,7 @@
 import { BlogRepository } from "../repositories/blog-repository";
 import { RecordsClient } from "../clients/records-client";
 import { CreateBlogBody, GetBlogParam, GetBlogsQuery } from "../schemas/schemas";
+import { ok } from "neverthrow";
 
 export class BlogService {
 	private blogRepository: BlogRepository;
@@ -14,11 +15,6 @@ export class BlogService {
 	async createBlog(ctx: { body: CreateBlogBody }) {
 		const result = await this.blogRepository.createBlog(ctx);
 
-		if (result.isErr()) {
-			return result
-		}
-
-		// TODO: This itself has not been handled correctly
 		await this.recordsClient.putRecord({
 			type: "CREATE",
 			data: JSON.stringify(result.value),
@@ -31,11 +27,8 @@ export class BlogService {
 	async unpublishBlog(ctx: { param: { blogId: string } }) {
 		const result = await this.blogRepository.unpublishBlog(ctx);
 
-		if (result.isErr()) {
-			return result
-		}
-
-		// TODO: This itself has not been handled correctly
+		// NOTE: This is simplified and not handling any edge cases.
+		// More for demonstrating MSW in action.
 		await this.recordsClient.putRecord({
 			type: "DELETE",
 			data: JSON.stringify(result.value),

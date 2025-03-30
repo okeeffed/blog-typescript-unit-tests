@@ -1,7 +1,9 @@
 import type { Post, PrismaClient } from "@prisma/client"
 import type { Keyv } from 'keyv';
-import { ok } from "neverthrow";
-import { authorArraySchema, CreateBlogBody, GetBlogParam, GetBlogsQuery, UnpublishBlogParam } from "../schemas/schemas";
+import { err, ok } from "neverthrow";
+import { authorSchema, CreateBlogBody, GetBlogParam, GetBlogsQuery, UnpublishBlogParam } from "../schemas/schemas";
+import { BlogNotFoundError } from "@/errors/blog-not-found-error";
+import superjson from 'superjson'
 
 
 export class BlogRepository {
@@ -52,6 +54,10 @@ export class BlogRepository {
 			},
 		});
 
+		if (!blog) {
+			return err(new BlogNotFoundError(ctx.param.blogId))
+		}
+
 		await this.cacheClient.set(ctx.param.blogId, JSON.stringify(blog), 1000 * 60 * 1);
 		return ok({ data: blog, _cacheHit: false });
 	}
@@ -76,7 +82,7 @@ export class BlogRepository {
 	async getBloggers() {
 		const cachedResult = await this.cacheClient.get('bloggers');
 		if (cachedResult) {
-			const parsedResult = await authorArraySchema.safeParseAsync(JSON.parse(cachedResult));
+			const parsedResult = await authorSchema.array().safeParseAsync(superjson.parse(cachedResult));
 
 			if (parsedResult.success) {
 				return ok({ data: parsedResult.data, _cacheHit: true });
@@ -84,7 +90,7 @@ export class BlogRepository {
 		}
 
 		const bloggers = await this.postgresClient.author.findMany();
-		await this.cacheClient.set('bloggers', JSON.stringify(bloggers), 1000 * 60 * 1);
+		await this.cacheClient.set('bloggers', superjson.stringify(bloggers), 1000 * 60 * 1);
 		return ok({ data: bloggers, _cacheHit: false });
 	}
 }
