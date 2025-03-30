@@ -1,4 +1,4 @@
-import type { PrismaClient } from "@prisma/client"
+import type { Post, PrismaClient } from "@prisma/client"
 import type { Keyv } from 'keyv';
 import { ok } from "neverthrow";
 import { authorArraySchema, CreateBlogBody, GetBlogParam, GetBlogsQuery, UnpublishBlogParam } from "../schemas/schemas";
@@ -43,7 +43,7 @@ export class BlogRepository {
 	async getBlog(ctx: { param: GetBlogParam }) {
 		const cachedResult = await this.cacheClient.get(ctx.param.blogId);
 		if (cachedResult) {
-			return ok(JSON.parse(cachedResult));
+			return ok({ data: JSON.parse(cachedResult) as Post, _cacheHit: true });
 		}
 
 		const blog = await this.postgresClient.post.findUnique({
@@ -52,14 +52,15 @@ export class BlogRepository {
 			},
 		});
 
-		return ok(blog);
+		await this.cacheClient.set(ctx.param.blogId, JSON.stringify(blog), 1000 * 60 * 1);
+		return ok({ data: blog, _cacheHit: false });
 	}
 
 	async getBlogs(ctx: { query: GetBlogsQuery }) {
 		const key = 'getBlogs' + JSON.stringify(ctx.query);
 		const cachedResult = await this.cacheClient.get(key);
 		if (cachedResult) {
-			return ok(JSON.parse(cachedResult));
+			return ok({ data: JSON.parse(cachedResult), _cacheHit: true });
 		}
 
 		const blogs = await this.postgresClient.post.findMany({
@@ -68,8 +69,8 @@ export class BlogRepository {
 			},
 		});
 
-		await this.cacheClient.set(key, JSON.stringify(blogs), 1000 * 60 * 5);
-		return ok(blogs);
+		await this.cacheClient.set(key, JSON.stringify(blogs), 1000 * 60 * 1);
+		return ok({ data: blogs, _cacheHit: false });
 	}
 
 	async getBloggers() {
@@ -78,12 +79,12 @@ export class BlogRepository {
 			const parsedResult = await authorArraySchema.safeParseAsync(JSON.parse(cachedResult));
 
 			if (parsedResult.success) {
-				return ok(parsedResult.data);
+				return ok({ data: parsedResult.data, _cacheHit: true });
 			}
 		}
 
 		const bloggers = await this.postgresClient.author.findMany();
-		await this.cacheClient.set('bloggers', JSON.stringify(bloggers), 1000 * 60 * 5);
-		return ok(bloggers);
+		await this.cacheClient.set('bloggers', JSON.stringify(bloggers), 1000 * 60 * 1);
+		return ok({ data: bloggers, _cacheHit: false });
 	}
 }

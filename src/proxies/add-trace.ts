@@ -11,7 +11,7 @@ export function addTrace<T extends object>(
 			if (typeof originalValue === 'function' && prop !== 'constructor') {
 				return async function(...args: any[]) {
 					// Log before method execution
-					logger.trace(`${String(prop)}() called`, { args }, className);
+					logger.trace({ args, className }, `${className}.${String(prop)}() called`);
 					try {
 						// Track timing for performance
 						const start = performance.now()
@@ -19,11 +19,11 @@ export function addTrace<T extends object>(
 						const result = await originalValue.apply(target, args);
 						const end = performance.now()
 						// Log after method execution
-						logger.trace(`${String(prop)}() returned`, { result, time: `${end - start}ms` }, className);
+						logger.trace({ className, duration: `${(end - start).toFixed(4)}ms` }, `${className}.${String(prop)}() returned`);
 						return result;
 					} catch (error) {
 						// Log errors
-						logger.error(`${String(prop)}() failed`, { error }, className);
+						logger.error({ error, className }, `${className}.${String(prop)}() failed`, { error });
 						throw error;
 					}
 				};

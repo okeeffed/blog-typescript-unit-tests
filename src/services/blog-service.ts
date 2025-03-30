@@ -14,12 +14,16 @@ export class BlogService {
 	async createBlog(ctx: { body: CreateBlogBody }) {
 		const result = await this.blogRepository.createBlog(ctx);
 
-		if (result.isOk()) {
-			await this.recordsClient.putRecord({
-				type: "CREATE",
-				data: JSON.stringify(result.value),
-			});
+		if (result.isErr()) {
+			return result
 		}
+
+		// TODO: This itself has not been handled correctly
+		await this.recordsClient.putRecord({
+			type: "CREATE",
+			data: JSON.stringify(result.value),
+		});
+
 
 		return result;
 	}
@@ -27,12 +31,15 @@ export class BlogService {
 	async unpublishBlog(ctx: { param: { blogId: string } }) {
 		const result = await this.blogRepository.unpublishBlog(ctx);
 
-		if (result.isOk()) {
-			await this.recordsClient.putRecord({
-				type: "DELETE",
-				data: JSON.stringify(result.value),
-			});
+		if (result.isErr()) {
+			return result
 		}
+
+		// TODO: This itself has not been handled correctly
+		await this.recordsClient.putRecord({
+			type: "DELETE",
+			data: JSON.stringify(result.value),
+		});
 
 		return result;
 	}

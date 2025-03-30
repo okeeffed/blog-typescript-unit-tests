@@ -28,7 +28,8 @@ export class AuthorsController extends OpenAPIHono {
 			},
 		}), async (c) => {
 			const result = await this.blogService.getBloggers()
-			return c.json(result.value, 200)
+			c.res.headers.append('X-Cache-Hit', result.value._cacheHit ? 'true' : 'false');
+			return c.json(result.value.data, 200)
 		})
 	}
 }

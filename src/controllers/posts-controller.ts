@@ -1,15 +1,12 @@
-
-
 import { OpenAPIHono, createRoute } from '@hono/zod-openapi';
 import { BlogService } from '../services/blog-service';
-import { z } from "@hono/zod-openapi"
 import {
 	postArraySchema,
-	getBlogsRawQuery,
 	getBlogsQuery,
 	createBlogBody,
 	postSchema,
 	getBlogParam,
+	unpublishBlogParam,
 } from '../schemas/schemas';
 import { controller } from '../decorators';
 
@@ -44,7 +41,9 @@ export class PostsController extends OpenAPIHono {
 		}),
 			async (c) => {
 				const result = await this.blogService.getBlogs({ query: c.req.valid('query') });
-				return c.json(result.value, 200);
+
+				c.res.headers.append('X-Cache-Hit', result.value._cacheHit ? 'true' : 'false');
+				return c.json(result.value.data, 200);
 			});
 	}
 
@@ -84,27 +83,24 @@ export class PostsController extends OpenAPIHono {
 			method: 'get',
 			path: '/:blogId',
 			description: "Fetch a blog",
-			parameters: [
-				{
-					in: "path",
-					name: "blogId",
-					required: true,
-				},
-			],
+			request: {
+				params: getBlogParam
+
+			},
 			responses: {
 				200: {
 					description: "Successful response",
 					content: {
 						"application/json": {
-							schema: postSchema,
+							schema: postSchema.nullable(),
 						},
 					},
 				},
 			},
 		}), async (c) => {
-			const param = { blogId: c.req.param('blogId') };
-			const result = await this.blogService.getBlog({ param });
-			return c.json(result.value, 200);
+			const result = await this.blogService.getBlog({ param: c.req.valid('param') });
+			c.res.headers.append('X-Cache-Hit', result.value._cacheHit ? 'true' : 'false');
+			return c.json(result.value.data, 200);
 		});
 	}
 
@@ -113,13 +109,9 @@ export class PostsController extends OpenAPIHono {
 			method: 'post',
 			path: '/:blogId/unpublish',
 			description: "Unpublish a blog",
-			parameters: [
-				{
-					in: "path",
-					name: "blogId",
-					required: true,
-				},
-			],
+			request: {
+				params: unpublishBlogParam
+			},
 			responses: {
 				200: {
 					description: "Successful response",

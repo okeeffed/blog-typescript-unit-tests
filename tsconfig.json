@@ -1,7 +1,7 @@
 {
   "extends": "@tsconfig/node22/tsconfig.json",
   "types": ["@types/jest", "@types/node"],
-  "include": ["src/**/*.ts", "prisma/**/*.ts"],
+  "include": ["src/**/*.ts", "prisma/**/*.ts", "config/**/*.ts"],
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
@@ -10,5 +10,6 @@
     },
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
+    "isolatedModules": true,
   }
 }

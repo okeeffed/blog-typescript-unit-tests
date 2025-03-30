@@ -1,5 +1,8 @@
 import { PrismaClient } from '@prisma/client';
 import * as d from "../src/mocks/seed-data";
+import { faker } from "@faker-js/faker"
+
+faker.seed(0)
 
 async function main() {
 	const prisma = new PrismaClient();

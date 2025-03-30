@@ -1,20 +1,27 @@
 import 'reflect-metadata'
 import pino from 'pino'
 import { createKeyv } from "@keyv/valkey"
+import { PrismaClient } from '@prisma/client'
+import { OpenAPIHono } from '@hono/zod-openapi'
 
 import { BlogService } from './services/blog-service'
-
 import { BlogRepository } from './repositories/blog-repository'
 import { RecordsClient } from './clients/records-client'
-import { PrismaClient } from '@prisma/client'
 import { addTraceCurried } from './proxies/add-trace'
 import { AuthorsController } from './controllers/authors-controller';
-import { OpenAPIHono } from '@hono/zod-openapi'
 import { PostsController } from './controllers/posts-controller';
 
 const prismaClient = new PrismaClient()
 const keyv = createKeyv(process.env.VALKEY_URL!) // omitted validation for brevity
-const logger = pino()
+const logger = pino({
+	level: process.env.LOG_LEVEL || 'info',
+	transport: {
+		target: 'pino-pretty',
+		options: {
+			colorize: true
+		}
+	}
+})
 
 const addTrace = addTraceCurried(logger)
 
