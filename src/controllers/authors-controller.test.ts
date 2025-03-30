@@ -8,6 +8,7 @@ import { RecordsClient } from "@/clients/records-client";
 import { getKeyv } from "@/lib/keyv";
 import { authorArraySchema } from "@/schemas/schemas";
 import { sortBy } from "es-toolkit";
+import { describe, test, expect, beforeAll, beforeEach, afterEach } from 'vitest'
 
 describe("AuthorsController", () => {
 	let authors: Author[]

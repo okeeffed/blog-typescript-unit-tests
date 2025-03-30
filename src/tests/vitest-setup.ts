@@ -1,6 +1,7 @@
 import { server } from "../mocks/server"
 import { PrismaClient } from '@prisma/client'
 import { getKeyv } from '../lib/keyv'
+import { beforeAll, afterEach, afterAll } from 'vitest'
 
 export const prisma = new PrismaClient()
 

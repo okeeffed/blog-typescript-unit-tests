@@ -5,6 +5,7 @@ import { postFactory } from '@/mocks/post-factory'
 import { Author, Post } from '@prisma/client'
 import { authorFactory } from '@/mocks/author-factory'
 import { faker } from '@faker-js/faker'
+import { describe, test, expect, beforeEach, afterEach } from 'vitest'
 
 
 describe('BlogRepository', () => {

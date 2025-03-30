@@ -1,7 +1,7 @@
 import { execSync } from "child_process";
 import { psqlContainer, valkeyContainer } from '../lib/testcontainers'
 
-export default async function globalSetup() {
+export async function setup() {
 	// Start the PostgreSQL container
 	const [psql, valkey] = await Promise.all([psqlContainer, valkeyContainer]);
 	const databaseUrl = psql.getConnectionUri();
@@ -17,4 +17,11 @@ export default async function globalSetup() {
 		env: { ...process.env, DATABASE_URL: databaseUrl },
 	});
 
+}
+
+export async function teardown() {
+	const psql = await psqlContainer;
+	const valkey = await valkeyContainer;
+
+	await Promise.all([psql.stop(), valkey.stop()])
 }
