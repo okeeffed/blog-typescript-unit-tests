@@ -1,6 +1,6 @@
 import { BlogRepository } from "../repositories/blog-repository";
 import { RecordsClient } from "../clients/records-client";
-import { CreateBlogBody } from "../schemas/schemas";
+import { CreateBlogBody, GetBlogParam, GetBlogsQuery } from "../schemas/schemas";
 
 export class BlogService {
 	private blogRepository: BlogRepository;
@@ -37,12 +37,12 @@ export class BlogService {
 		return result;
 	}
 
-	async getBlog(ctx: { param: { blogId: string } }) {
+	async getBlog(ctx: { param: GetBlogParam }) {
 		return this.blogRepository.getBlog(ctx);
 	}
 
-	async getBlogs() {
-		return this.blogRepository.getBlogs();
+	async getBlogs(ctx: { query: GetBlogsQuery }) {
+		return this.blogRepository.getBlogs(ctx);
 	}
 
 	async getBloggers() {

@@ -1,7 +1,7 @@
 import type { PrismaClient } from "@prisma/client"
 import type { Keyv } from 'keyv';
 import { ok } from "neverthrow";
-import { authorArraySchema, CreateBlogBody, GetBlogParam, UnpublishBlogParam } from "../schemas/schemas";
+import { authorArraySchema, CreateBlogBody, GetBlogParam, GetBlogsQuery, UnpublishBlogParam } from "../schemas/schemas";
 
 
 export class BlogRepository {
@@ -55,13 +55,17 @@ export class BlogRepository {
 		return ok(blog);
 	}
 
-	async getBlogs() {
+	async getBlogs(ctx: { query: GetBlogsQuery }) {
 		const cachedResult = await this.cacheClient.get('blogs');
 		if (cachedResult) {
 			return ok(JSON.parse(cachedResult));
 		}
 
-		const blogs = await this.postgresClient.post.findMany();
+		const blogs = await this.postgresClient.post.findMany({
+			where: {
+				published: ctx.query.published,
+			},
+		});
 		return ok(blogs);
 	}
 

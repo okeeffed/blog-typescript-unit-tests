@@ -46,7 +46,6 @@ export async function startTestContainers(): Promise<ContainerInfo> {
 
 	// Set the VALKEY_URL environment variable for Valkey
 	const valkeyUrl = valkeyContainer.getConnectionUrl();
-	console.log('Valkey URL:', valkeyUrl)
 	process.env.VALKEY_URL = valkeyUrl;
 
 

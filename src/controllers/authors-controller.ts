@@ -1,16 +1,37 @@
-import { Hono } from 'hono'
-import { BlogService } from '../services/blog-service'
-import pino from 'pino'
+import { Hono } from "hono"
+import { BlogService } from '../services/blog-service';
+import { authorArraySchema } from '../schemas/schemas';
+import { controller } from '../decorators'
+import { resolver } from "hono-openapi/zod";
+import { describeRoute } from "hono-openapi";
+import { createRoute, OpenAPIHono } from '@hono/zod-openapi'
 
-const app = new Hono()
-const blogService = new BlogService(pino())
+@controller
+export class AuthorsController extends OpenAPIHono {
+	private blogService: BlogService
 
+	constructor(blogService: BlogService) {
+		super()
+		this.blogService = blogService;
+	}
 
-app.get('/authors', async (c) => {
-	const result = await blogService.getBloggers()
-
-	return c.text('Hello Hono!')
-})
-
-export default app
-
+	public list() {
+		return this.openapi(createRoute({
+			method: 'get',
+			path: '/',
+			responses: {
+				200: {
+					content: {
+						'application/json': {
+							schema: authorArraySchema,
+						},
+					},
+					description: 'Retrieve the user',
+				},
+			},
+		}), async (c) => {
+			const result = await this.blogService.getBloggers()
+			return c.json(result.value, 200)
+		})
+	}
+}

@@ -7,7 +7,7 @@ let prisma;
 
 beforeAll(async () => {
   // Start a PostgreSQL container with Testcontainers
-  container = await new PostgreSqlContainer("postgres:13")
+  container = await new PostgreSqlContainer("postgres:17")
     .withDatabase("testdb")
     .withUsername("testuser")
     .withPassword("testpass")

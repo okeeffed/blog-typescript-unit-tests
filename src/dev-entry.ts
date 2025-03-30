@@ -1,28 +1,13 @@
 // src/dev-server.ts
-import { createApp } from './index'
+import 'dotenv/config'
+import { app } from './index'
 import { serve } from '@hono/node-server'
 import { setupMockServer } from './mocks/server'
-import { startTestContainers } from './utils/test-container'
+import { openAPISpecs } from 'hono-openapi'
+import { swaggerUI } from '@hono/swagger-ui'
 
 async function startDevServer() {
 	console.log('🚀 Starting development server with mocks...')
-
-	// 1. Start test containers (Postgres and Valkey)
-	try {
-		console.log('📦 Starting test containers...')
-		const containerInfo = await startTestContainers()
-
-		// Set environment variables from container info
-		process.env.DATABASE_URL = containerInfo.postgresConnectionString
-		process.env.VALKEY_URL = containerInfo.valkeyConnectionString
-
-		console.log('✅ Test containers started successfully')
-		console.log(`📊 Postgres available at: ${containerInfo.postgresConnectionString}`)
-		console.log(`🗄️ Valkey available at: ${containerInfo.valkeyConnectionString}`)
-	} catch (error) {
-		console.error('❌ Failed to start test containers:', error)
-		process.exit(1)
-	}
 
 	// 2. Initialize MSW for API mocking
 	const { startMocking, stopMocking } = setupMockServer()
@@ -32,13 +17,38 @@ async function startDevServer() {
 
 	// Import your routes and middleware here
 	// e.g., app.route('/', yourRoutes)
-	const app = createApp()
 
 
 	// Add a special development-only endpoint to check mock status
 	app.get('/__mocks-status', (c) => {
 		return c.json({ status: 'active', mocks: true })
 	})
+
+	app.doc31('/openapi', {
+		openapi: '3.1.0', info: {
+			title: 'Hono API',
+			version: '1.0.0',
+			description: 'Greeting API',
+		},
+		servers: [
+			{ url: 'http://localhost:3000', description: 'Local Server' },
+		],
+	})
+
+	app.get('/swagger', swaggerUI({ url: '/openapi' }))
+
+	const apiModule = await import('@scalar/hono-api-reference');
+	// If the module exports a default, you might need to access it like this:
+	const apiReference = apiModule.apiReference;
+
+	app.get(
+		'/docs',
+		apiReference({
+			theme: 'saturn',
+			url: '/openapi',
+		})
+	)
+
 
 	// Start the server
 	const port = process.env.PORT || 3000

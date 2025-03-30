@@ -32,3 +32,9 @@ export function addTrace<T extends object>(
 		}
 	});
 }
+
+/**
+ * Curried version of addTrace to partially apply the logger first.
+ */
+export const addTraceCurried = (logger: ILoggerService) => <T extends object>(classObj: T): T =>
+	addTrace(classObj, logger);

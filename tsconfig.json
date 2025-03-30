@@ -1,4 +1,14 @@
 {
   "extends": "@tsconfig/node22/tsconfig.json",
-  "types": ["@types/jest", "@types/node"]
+  "types": ["@types/jest", "@types/node"],
+  "include": ["src/**/*.ts", "prisma/**/*.ts"],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@/seeds": ["./prisma/seed.ts"],
+    },
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+  }
 }
