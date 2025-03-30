@@ -94,3 +94,8 @@ export const getBlogsQuery = z.object({
 });
 export type GetBlogsQuery = z.infer<typeof getBlogsQuery>;
 
+export const getBlogById200Response = postSchema.nullable();
+export const getBlogById404Response = z.object({
+	blogId: z.string(),
+	message: z.string(),
+});

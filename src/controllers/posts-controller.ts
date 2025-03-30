@@ -7,9 +7,10 @@ import {
 	postSchema,
 	getBlogParam,
 	unpublishBlogParam,
+	getBlogById200Response,
+	getBlogById404Response,
 } from '../schemas/schemas';
 import { controller } from '../decorators';
-import { z } from 'zod';
 
 @controller
 export class PostsController extends OpenAPIHono {
@@ -93,7 +94,7 @@ export class PostsController extends OpenAPIHono {
 					description: "Successful response",
 					content: {
 						"application/json": {
-							schema: postSchema.nullable(),
+							schema: getBlogById200Response,
 						},
 					},
 				},
@@ -101,10 +102,7 @@ export class PostsController extends OpenAPIHono {
 					description: "Blog not found",
 					content: {
 						"application/json": {
-							schema: z.object({
-								blogId: z.string(),
-								message: z.string(),
-							})
+							schema: getBlogById404Response
 						},
 					}
 				}
