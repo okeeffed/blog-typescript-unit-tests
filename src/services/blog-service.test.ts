@@ -1,27 +1,22 @@
 import { sortBy } from "es-toolkit"
-import { RecordsClient } from "@/clients/records-client"
-import { BlogRepository } from "@/repositories/blog-repository"
 import { BlogService } from "./blog-service"
-import { getKeyv } from "@/lib/keyv"
-import { prisma } from "@/lib/prisma"
 import { CreateBlogBody } from "@/schemas/schemas"
 import { postFactory } from "@/mocks/post-factory"
-import { Author, Post } from "@prisma/client"
+import { Author, Post, PrismaClient } from "@prisma/client"
 import { authorFactory } from "@/mocks/author-factory"
 import { faker } from "@faker-js/faker"
 import { describe, test, expect, beforeEach, afterEach } from 'vitest'
+import { container } from "../config/ioc-test"
+import { IocKeys } from "../config/ioc-keys"
 
 
 describe('BlogService', () => {
-	let blogRepository: BlogRepository
-	let recordsClient: RecordsClient
 	let blogService: BlogService
+	let prisma: PrismaClient
 
 	beforeEach(() => {
-		const keyv = getKeyv()
-		blogRepository = new BlogRepository(prisma, keyv)
-		recordsClient = new RecordsClient()
-		blogService = new BlogService(blogRepository, recordsClient)
+		blogService = container.get<BlogService>(IocKeys.BlogService)
+		prisma = container.get<PrismaClient>(IocKeys.PrismaClient)
 	})
 
 	describe('createBlog', () => {

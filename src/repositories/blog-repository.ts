@@ -1,16 +1,20 @@
-import type { Post, PrismaClient } from "@prisma/client"
-import type { Keyv } from 'keyv';
+import type { Post } from "@prisma/client"
 import { err, ok } from "neverthrow";
 import { authorSchema, CreateBlogBody, GetBlogParam, GetBlogsQuery, UnpublishBlogParam } from "../schemas/schemas";
 import { BlogNotFoundError } from "@/errors/blog-not-found-error";
 import superjson from 'superjson'
+import { inject, injectable } from "inversify";
+import { IocKeys } from "../config/ioc-keys";
+import type { IKeyvClient } from "../lib/keyv";
+import type { IPrismaClient } from "../lib/prisma";
 
 
+@injectable()
 export class BlogRepository {
-	postgresClient: PrismaClient;
-	cacheClient: Keyv<any>;
+	private postgresClient: IPrismaClient;
+	private cacheClient: IKeyvClient;
 
-	constructor(postgresClient: PrismaClient, cacheClient: Keyv<any>) {
+	constructor(@inject(IocKeys.PrismaClient) postgresClient: IPrismaClient, @inject(IocKeys.KeyvClient) cacheClient: IKeyvClient) {
 		this.postgresClient = postgresClient;
 		this.cacheClient = cacheClient;
 	}

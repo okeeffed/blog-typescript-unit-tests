@@ -1,6 +1,7 @@
 import axios, { isAxiosError } from 'axios';
 import { ok, err } from 'neverthrow'
 import { AxiosError } from '../errors/axios-error';
+import { injectable } from 'inversify';
 
 export interface PutRecordBody {
 	type: "CREATE" | "DELETE"
@@ -12,6 +13,7 @@ interface PutRecordResponse {
 	message: string
 }
 
+@injectable()
 export class RecordsClient {
 	/**
 	 * PUT a record to the records API. Unexpected defects are thrown.

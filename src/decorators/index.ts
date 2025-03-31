@@ -12,13 +12,16 @@ export function controller<T extends { new(...args: any[]): {} }>(constructor: T
 		constructor(...args: any[]) {
 			super(...args);
 			const proto = constructor.prototype;
-			Object.getOwnPropertyNames(proto).forEach((key) => {
-				if (key === "constructor") return;
-				const method = this[key as keyof typeof this];
-				if (typeof method === "function") {
-					method.call(this);
-				}
-			});
+			setTimeout(() => {
+				Object.getOwnPropertyNames(proto).forEach((key) => {
+					if (key === "constructor") return;
+					const method = this[key as keyof typeof this];
+					if (typeof method === "function") {
+						method.call(this);
+					}
+				});
+			}, 0);
 		}
 	};
 }
+

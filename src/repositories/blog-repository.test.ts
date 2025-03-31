@@ -1,19 +1,20 @@
 import { BlogRepository } from './blog-repository'
-import { prisma } from "@/lib/prisma"
-import { getKeyv } from '../lib/keyv'
 import { postFactory } from '@/mocks/post-factory'
-import { Author, Post } from '@prisma/client'
+import { Author, Post, PrismaClient } from '@prisma/client'
 import { authorFactory } from '@/mocks/author-factory'
 import { faker } from '@faker-js/faker'
 import { describe, test, expect, beforeEach, afterEach } from 'vitest'
+import { container } from '../config/ioc-test'
+import { IocKeys } from '../config/ioc-keys'
 
 
 describe('BlogRepository', () => {
 	let blogRepository: BlogRepository
+	let prisma: PrismaClient
 
 	beforeEach(() => {
-		const keyv = getKeyv()
-		blogRepository = new BlogRepository(prisma, keyv)
+		blogRepository = container.get<BlogRepository>(IocKeys.BlogRepository)
+		prisma = container.get<PrismaClient>(IocKeys.PrismaClient)
 	})
 
 	describe('createBlog', () => {
@@ -148,7 +149,7 @@ describe('BlogRepository', () => {
 		})
 
 		afterEach(async () => {
-			await prisma.post.deleteMany({
+			await prisma.author.deleteMany({
 				where: {
 					id: {
 						in: authors.map(p => p.id)

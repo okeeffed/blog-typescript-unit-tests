@@ -1,26 +1,21 @@
 import { AuthorsController } from "./authors-controller"
 import { authorFactory } from "@/mocks/author-factory";
-import { prisma } from "@/lib/prisma";
-import { Author } from "@prisma/client";
-import { BlogService } from "@/services/blog-service";
-import { BlogRepository } from "@/repositories/blog-repository";
-import { RecordsClient } from "@/clients/records-client";
-import { getKeyv } from "@/lib/keyv";
+import { Author, PrismaClient } from "@prisma/client";
 import { authorArraySchema } from "@/schemas/schemas";
 import { sortBy } from "es-toolkit";
 import { describe, test, expect, beforeAll, beforeEach, afterEach } from 'vitest'
+import { IocKeys } from "../config/ioc-keys";
+import { container } from "../config/ioc-test";
 
 describe("AuthorsController", () => {
 	let authors: Author[]
 	let app: AuthorsController;
 	let baseHeaders: Record<string, string>
+	let prisma: PrismaClient
 
 	beforeAll(async () => {
-		const keyv = getKeyv()
-		const recordsClient = new RecordsClient()
-		const blogRepository = new BlogRepository(prisma, keyv)
-		const blogService = new BlogService(blogRepository, recordsClient);
-		app = new AuthorsController(blogService)
+		app = container.get<AuthorsController>(IocKeys.AuthorsController)
+		prisma = container.get<PrismaClient>(IocKeys.PrismaClient)
 
 		baseHeaders = {
 			"content-type": "application/json"

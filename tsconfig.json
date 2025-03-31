@@ -6,10 +6,10 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "@/seeds": ["./prisma/seed.ts"],
     },
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "isolatedModules": true,
+    "erasableSyntaxOnly": true
   }
 }

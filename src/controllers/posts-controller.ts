@@ -10,15 +10,21 @@ import {
 	getBlogById200Response,
 	getBlogById404Response,
 } from '../schemas/schemas';
-import { controller } from '../decorators';
+import { inject, injectable } from 'inversify';
+import { IocKeys } from '@/config/ioc-keys';
 
-@controller
+@injectable()
 export class PostsController extends OpenAPIHono {
 	private blogService: BlogService;
 
-	constructor(blogService: BlogService) {
+	constructor(@inject(IocKeys.BlogService) blogService: BlogService) {
 		super();
 		this.blogService = blogService;
+
+		this.list()
+		this.create()
+		this.getById()
+		this.unpublish()
 	}
 
 	public list() {

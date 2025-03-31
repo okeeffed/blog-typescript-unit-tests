@@ -1,9 +1,10 @@
 // src/dev-server.ts
 import 'dotenv/config'
+import 'reflect-metadata'
+
 import { app } from './index'
 import { serve } from '@hono/node-server'
 import { setupMockServer } from './mocks/server'
-import { openAPISpecs } from 'hono-openapi'
 import { swaggerUI } from '@hono/swagger-ui'
 
 async function startDevServer() {

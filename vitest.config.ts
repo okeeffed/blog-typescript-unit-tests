@@ -1,3 +1,4 @@
+
 import { defineConfig } from 'vite'
 
 export default defineConfig({
@@ -8,16 +9,30 @@ export default defineConfig({
 	},
 	test: {
 		coverage: {
-			reporter: ['text', 'lcov'], // 'text' = terminal, 'lcov' = HTML output
+			reporter: ['text', 'lcov'],
+			exclude: [
+				'src/tests',
+				'src/proxies',
+				'src/mocks',
+				'src/config',
+				'src/lib',
+				'src/decorators',
+				'prisma',
+				'vitest.config.ts',
+				'src/dev-entry.ts',
+				'src/index.ts',
+				'src/schemas.ts'
+			]
 		},
-		// Run tets in a single process
-		pool: 'forks',
-		sequence: {
-			concurrent: false
+		pool: "forks",
+		poolOptions: {
+			forks: {
+				singleFork: true
+			}
 		},
-		globalSetup: [
-			'./src/tests/vitest-global-setup.ts',
-		],
-		setupFiles: ['./src/tests/vitest-setup.ts']
+		globalSetup: ['./src/tests/vitest-global-setup.ts'],
+		setupFiles: ['./src/tests/vitest-setup.ts'],
+
 	},
 })
+

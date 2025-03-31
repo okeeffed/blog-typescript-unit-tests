@@ -1,26 +1,24 @@
 import { PostsController } from "./posts-controller"
 import { postFactory } from "@/mocks/post-factory";
-import { prisma } from "@/lib/prisma";
-import { Post } from "@prisma/client";
+import { Post, PrismaClient } from "@prisma/client";
 import { BlogService } from "@/services/blog-service";
-import { BlogRepository } from "@/repositories/blog-repository";
-import { RecordsClient } from "@/clients/records-client";
-import { getKeyv } from "@/lib/keyv";
-import { postArraySchema, postSchema, postSchemaSerialised } from "@/schemas/schemas";
+import { postArraySchema, postSchemaSerialised } from "@/schemas/schemas";
 import { faker } from "@faker-js/faker";
 import { sortBy } from "es-toolkit";
+import { describe, test, expect, beforeAll, beforeEach, afterEach } from 'vitest'
+import { container } from "../config/ioc-test";
+import { IocKeys } from "../config/ioc-keys";
 
 describe("PostsController", () => {
 	let posts: Post[]
 	let app: PostsController;
 	let baseHeaders: Record<string, string>
 	let blogService: BlogService;
+	let prisma: PrismaClient
 
 	beforeAll(async () => {
-		const keyv = getKeyv()
-		const recordsClient = new RecordsClient()
-		const blogRepository = new BlogRepository(prisma, keyv)
-		blogService = new BlogService(blogRepository, recordsClient);
+		blogService = container.get<BlogService>(IocKeys.BlogService)
+		prisma = container.get<PrismaClient>(IocKeys.PrismaClient)
 		app = new PostsController(blogService)
 
 		baseHeaders = {
