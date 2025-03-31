@@ -31,8 +31,7 @@ export default defineConfig({
 			}
 		},
 		globalSetup: ['./src/tests/vitest-global-setup.ts'],
-		setupFiles: ['./src/tests/vitest-setup.ts'],
-
+		setupFiles: ['./src/tests/vitest-setup.ts', './src/tests/matchers.ts'],
 	},
 })
 

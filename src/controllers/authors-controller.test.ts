@@ -2,7 +2,6 @@ import { AuthorsController } from "./authors-controller"
 import { authorFactory } from "@/mocks/author-factory";
 import { Author, PrismaClient } from "@prisma/client";
 import { authorArraySchema } from "@/schemas/schemas";
-import { sortBy } from "es-toolkit";
 import { describe, test, expect, beforeAll, beforeEach, afterEach } from 'vitest'
 import { IocKeys } from "../config/ioc-keys";
 import { container } from "../config/ioc-test";
@@ -48,9 +47,7 @@ describe("AuthorsController", () => {
 				updatedAt: a.updatedAt.toISOString()
 			}))
 			const validatedAuthors = authorArraySchema.parse(json)
-			const sortedAuthors = sortBy(validatedAuthors, ['id'])
-			const sortedExpectedAuthors = sortBy(expectedResponse, ['id'])
-			expect(sortedAuthors).toEqual(sortedExpectedAuthors)
+			expect(validatedAuthors).toEqualSortedBy(expectedResponse, 'id')
 		})
 
 		test("should return cache headers as expected", async () => {

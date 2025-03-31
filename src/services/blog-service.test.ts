@@ -1,11 +1,10 @@
-import { sortBy } from "es-toolkit"
 import { BlogService } from "./blog-service"
 import { CreateBlogBody } from "@/schemas/schemas"
 import { postFactory } from "@/mocks/post-factory"
 import { Author, Post, PrismaClient } from "@prisma/client"
 import { authorFactory } from "@/mocks/author-factory"
 import { faker } from "@faker-js/faker"
-import { describe, test, expect, beforeEach, afterEach } from 'vitest'
+import { describe, test, expect, beforeEach } from 'vitest'
 import { container } from "../config/ioc-test"
 import { IocKeys } from "../config/ioc-keys"
 
@@ -113,9 +112,7 @@ describe('BlogService', () => {
 			const result = await blogService.getBlogs({ query: { published: true } })
 			expect(result.isOk()).toBe(true)
 
-			const sortedResults = sortBy(result.value.data, ['id'])
-			const sortedPosts = sortBy(publishedPosts, ['id'])
-			expect(sortedResults).toEqual(sortedPosts)
+			expect(result.value.data).toEqualSortedBy(publishedPosts, 'id')
 		})
 	})
 
@@ -138,9 +135,7 @@ describe('BlogService', () => {
 
 			expect(result.isOk()).toBe(true)
 
-			const sortedResults = sortBy(result.value.data, ['id'])
-			const sortedAuthors = sortBy(authors, ['id'])
-			expect(sortedResults).toEqual(sortedAuthors)
+			expect(result.value.data).toEqualSortedBy(authors, 'id')
 		})
 
 	})

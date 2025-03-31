@@ -4,7 +4,6 @@ import { Post, PrismaClient } from "@prisma/client";
 import { BlogService } from "@/services/blog-service";
 import { postArraySchema, postSchemaSerialised } from "@/schemas/schemas";
 import { faker } from "@faker-js/faker";
-import { sortBy } from "es-toolkit";
 import { describe, test, expect, beforeAll, beforeEach, afterEach } from 'vitest'
 import { container } from "../config/ioc-test";
 import { IocKeys } from "../config/ioc-keys";
@@ -52,9 +51,7 @@ describe("PostsController", () => {
 				updatedAt: p.updatedAt.toISOString()
 			}))
 			const expectedResponseSerialised = postArraySchema.parse(json)
-			const sortedPosts = sortBy(expectedResponseSerialised, ['id'])
-			const sortedExpectedPosts = sortBy(expectedResponse, ['id'])
-			expect(sortedPosts).toEqual(sortedExpectedPosts)
+			expect(expectedResponseSerialised).toEqualSortedBy(expectedResponse, 'id')
 		})
 
 		test("should return cache headers as expected", async () => {
