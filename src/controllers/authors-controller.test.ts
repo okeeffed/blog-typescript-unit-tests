@@ -34,16 +34,6 @@ describe("AuthorsController", () => {
 			})
 		})
 
-		afterEach(async () => {
-			await prisma.author.deleteMany({
-				where: {
-					id: {
-						in: authors.map(a => a.id)
-					}
-				}
-			})
-		})
-
 		test("should return a list of authors", async () => {
 			const response = await app.request('/', {
 				method: "GET",

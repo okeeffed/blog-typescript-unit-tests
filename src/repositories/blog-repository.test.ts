@@ -50,14 +50,6 @@ describe('BlogRepository', () => {
 			})
 		})
 
-		afterEach(async () => {
-			await prisma.post.delete({
-				where: {
-					id: post.id
-				}
-			})
-		})
-
 		test('can get a blog', async () => {
 			const result = await blogRepository.getBlog({ param: { blogId: post.id } })
 			expect(result.isOk()).toBe(true)
@@ -106,16 +98,6 @@ describe('BlogRepository', () => {
 			})
 		})
 
-		afterEach(async () => {
-			await prisma.post.deleteMany({
-				where: {
-					id: {
-						in: posts.map(p => p.id)
-					}
-				}
-			})
-		})
-
 		test('can get blogs', async () => {
 			const result = await blogRepository.getBlogs({ query: { published: true } })
 			expect(result.isOk()).toBe(true)
@@ -145,16 +127,6 @@ describe('BlogRepository', () => {
 
 			await prisma.author.createMany({
 				data: authors
-			})
-		})
-
-		afterEach(async () => {
-			await prisma.author.deleteMany({
-				where: {
-					id: {
-						in: authors.map(p => p.id)
-					}
-				}
 			})
 		})
 

@@ -37,16 +37,6 @@ describe("PostsController", () => {
 		})
 	})
 
-	afterEach(async () => {
-		await prisma.post.deleteMany({
-			where: {
-				id: {
-					in: posts.map(p => p.id)
-				}
-			}
-		})
-	})
-
 	describe("GET /", () => {
 		test("should return a list of posts", async () => {
 			const response = await app.request('/', {

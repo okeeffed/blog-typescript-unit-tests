@@ -46,14 +46,6 @@ describe('BlogService', () => {
 			})
 		})
 
-		afterEach(async () => {
-			await prisma.post.delete({
-				where: {
-					id: post.id
-				}
-			})
-		})
-
 		test('can set the published value of a blog post to false', async () => {
 			const result = await blogService.unpublishBlog({ param: { blogId: post.id } })
 			expect(result.isOk()).toBe(true)
@@ -70,14 +62,6 @@ describe('BlogService', () => {
 			post = postFactory.build();
 			await prisma.post.create({
 				data: post
-			})
-		})
-
-		afterEach(async () => {
-			await prisma.post.delete({
-				where: {
-					id: post.id
-				}
 			})
 		})
 
@@ -125,16 +109,6 @@ describe('BlogService', () => {
 			})
 		})
 
-		afterEach(async () => {
-			await prisma.post.deleteMany({
-				where: {
-					id: {
-						in: allPosts.map(p => p.id)
-					}
-				}
-			})
-		})
-
 		test('can list all available blogs', async () => {
 			const result = await blogService.getBlogs({ query: { published: true } })
 			expect(result.isOk()).toBe(true)
@@ -156,16 +130,6 @@ describe('BlogService', () => {
 			})
 			await prisma.author.createMany({
 				data: authors
-			})
-		})
-
-		afterEach(async () => {
-			await prisma.author.deleteMany({
-				where: {
-					id: {
-						in: authors.map(p => p.id)
-					}
-				}
 			})
 		})
 
