@@ -1,3 +1,4 @@
-import Keyv from 'keyv';
+import type KeyvValkey from "@keyv/valkey";
+import type Keyv from "keyv";
 
-export type IKeyvClient = Keyv<any>
+export type IKeyvClient = Keyv<KeyvValkey>;

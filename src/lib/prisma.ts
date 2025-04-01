@@ -1,3 +1,3 @@
-import { PrismaClient } from "@prisma/client"
+import type { PrismaClient } from "@prisma/client";
 
-export type IPrismaClient = PrismaClient
+export type IPrismaClient = PrismaClient;

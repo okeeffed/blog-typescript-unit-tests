@@ -11,8 +11,9 @@
     "test:watch": "vitest",
     "prisma:reset": "npx prisma migrate dev && npx prisma db seed",
     "knip": "knip",
-    "format": "npx @biomejs/biome format --write",
-    "lint": "npx @biomejs/biome lint --write"
+    "format": "npx @biomejs/biome format --write src",
+    "lint": "npx @biomejs/biome lint --write src",
+    "check": "npx @biomejs/biome check --write src"
   },
   "keywords": [],
   "author": "",

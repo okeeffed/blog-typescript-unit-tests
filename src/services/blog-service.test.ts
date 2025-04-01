@@ -1,141 +1,144 @@
-import { BlogService } from "./blog-service"
-import { CreateBlogBody } from "@/schemas/schemas"
-import { postFactory } from "@/mocks/post-factory"
-import { Author, Post, PrismaClient } from "@prisma/client"
-import { authorFactory } from "@/mocks/author-factory"
-import { faker } from "@faker-js/faker"
-import { describe, test, expect, beforeEach } from 'vitest'
-import { container } from "../config/ioc-test"
-import { IocKeys } from "../config/ioc-keys"
+import { authorFactory } from "@/mocks/author-factory";
+import { postFactory } from "@/mocks/post-factory";
+import type { CreateBlogBody } from "@/schemas/schemas";
+import { faker } from "@faker-js/faker";
+import type { Author, Post, PrismaClient } from "@prisma/client";
+import { beforeEach, describe, expect, test } from "vitest";
+import { IocKeys } from "../config/ioc-keys";
+import { container } from "../config/ioc-test";
+import type { BlogService } from "./blog-service";
 
+describe("BlogService", () => {
+  let blogService: BlogService;
+  let prisma: PrismaClient;
 
-describe('BlogService', () => {
-	let blogService: BlogService
-	let prisma: PrismaClient
+  beforeEach(() => {
+    blogService = container.get<BlogService>(IocKeys.BlogService);
+    prisma = container.get<PrismaClient>(IocKeys.PrismaClient);
+  });
 
-	beforeEach(() => {
-		blogService = container.get<BlogService>(IocKeys.BlogService)
-		prisma = container.get<PrismaClient>(IocKeys.PrismaClient)
-	})
+  describe("createBlog", () => {
+    test("creates and returns a blog post and putRecordResult", async () => {
+      const createBlogBody: CreateBlogBody = {
+        title: "title",
+        content: "content",
+      };
+      const result = await blogService.createBlog({ body: createBlogBody });
 
-	describe('createBlog', () => {
-		test('creates and returns a blog post and putRecordResult', async () => {
-			const createBlogBody: CreateBlogBody = { title: 'title', content: 'content' }
-			const result = await blogService.createBlog({ body: createBlogBody })
+      expect(result.isOk()).toBe(true);
+      expect(result.value.title).toBe("title");
+      expect(result.value.content).toBe("content");
 
-			expect(result.isOk()).toBe(true)
-			expect(result.value.title).toBe('title')
-			expect(result.value.content).toBe('content')
+      await prisma.post.delete({
+        where: {
+          id: result.value.id,
+        },
+      });
+    });
+  });
 
-			await prisma.post.delete({
-				where: {
-					id: result.value.id
-				}
-			})
-		})
-	})
+  describe("unpublishBlog", () => {
+    let post: Post;
 
-	describe('unpublishBlog', () => {
-		let post: Post
+    beforeEach(async () => {
+      post = postFactory.build();
+      await prisma.post.create({
+        data: post,
+      });
+    });
 
-		beforeEach(async () => {
-			post = postFactory.build();
-			await prisma.post.create({
-				data: post
-			})
-		})
+    test("can set the published value of a blog post to false", async () => {
+      const result = await blogService.unpublishBlog({
+        param: { blogId: post.id },
+      });
+      expect(result.isOk()).toBe(true);
+      expect(result.value.published).toBe(false);
+    });
+  });
 
-		test('can set the published value of a blog post to false', async () => {
-			const result = await blogService.unpublishBlog({ param: { blogId: post.id } })
-			expect(result.isOk()).toBe(true)
-			expect(result.value.published).toBe(false)
-		})
-	})
+  describe("getBlog", () => {
+    let post: Post;
 
+    beforeEach(async () => {
+      post = postFactory.build();
+      await prisma.post.create({
+        data: post,
+      });
+    });
 
+    test("can get a blog by ID", async () => {
+      const result = await blogService.getBlog({ param: { blogId: post.id } });
 
-	describe('getBlog', () => {
-		let post: Post
+      expect(result.isOk()).toBe(true);
+      result.map((value) => {
+        expect(value.data?.title).toBe(post.title);
+        expect(value.data?.content).toBe(post.content);
+      });
+    });
 
-		beforeEach(async () => {
-			post = postFactory.build();
-			await prisma.post.create({
-				data: post
-			})
-		})
+    test("returns BlogNotFoundError when the id does not exist", async () => {
+      const result = await blogService.getBlog({
+        param: { blogId: faker.string.uuid() },
+      });
 
-		test('can get a blog by ID', async () => {
-			const result = await blogService.getBlog({ param: { blogId: post.id } })
+      expect(result.isErr()).toBe(true);
+      result.mapErr((e) => {
+        expect(e._tag).toBe("BlogNotFoundError");
+      });
+    });
+  });
 
-			expect(result.isOk()).toBe(true)
-			result.map(value => {
-				expect(value.data?.title).toBe(post.title)
-				expect(value.data?.content).toBe(post.content)
-			})
-		})
+  describe("getBlogs", () => {
+    let publishedPosts: Post[];
+    let unpublishedPosts: Post[];
+    let allPosts: Post[];
 
-		test('returns BlogNotFoundError when the id does not exist', async () => {
-			const result = await blogService.getBlog({ param: { blogId: faker.string.uuid() } })
+    beforeEach(async () => {
+      const timestamp = new Date();
+      publishedPosts = postFactory.buildList(5, {
+        published: true,
+        updatedAt: timestamp,
+        createdAt: timestamp,
+      });
+      unpublishedPosts = postFactory.buildList(5, {
+        published: false,
+        updatedAt: timestamp,
+        createdAt: timestamp,
+      });
+      allPosts = [...publishedPosts, ...unpublishedPosts];
 
-			expect(result.isErr()).toBe(true)
-			result.mapErr(e => {
-				expect(e._tag).toBe("BlogNotFoundError")
-			})
-		})
-	})
+      await prisma.post.createMany({
+        data: allPosts,
+      });
+    });
 
-	describe('getBlogs', () => {
-		let publishedPosts: Post[]
-		let unpublishedPosts: Post[]
-		let allPosts: Post[]
+    test("can list all available blogs", async () => {
+      const result = await blogService.getBlogs({ query: { published: true } });
+      expect(result.isOk()).toBe(true);
 
-		beforeEach(async () => {
-			const timestamp = new Date();
-			publishedPosts = postFactory.buildList(5, {
-				published: true,
-				updatedAt: timestamp,
-				createdAt: timestamp
-			})
-			unpublishedPosts = postFactory.buildList(5, {
-				published: false,
-				updatedAt: timestamp,
-				createdAt: timestamp
-			})
-			allPosts = [...publishedPosts, ...unpublishedPosts]
+      expect(result.value.data).toEqualSortedBy(publishedPosts, "id");
+    });
+  });
 
-			await prisma.post.createMany({
-				data: allPosts
-			})
-		})
+  describe("getBloggers", () => {
+    let authors: Author[];
 
-		test('can list all available blogs', async () => {
-			const result = await blogService.getBlogs({ query: { published: true } })
-			expect(result.isOk()).toBe(true)
+    beforeEach(async () => {
+      const timestamp = new Date();
+      authors = authorFactory.buildList(10, {
+        updatedAt: timestamp,
+        createdAt: timestamp,
+      });
+      await prisma.author.createMany({
+        data: authors,
+      });
+    });
 
-			expect(result.value.data).toEqualSortedBy(publishedPosts, 'id')
-		})
-	})
+    test("can list all blog authors", async () => {
+      const result = await blogService.getBloggers();
 
-	describe('getBloggers', () => {
-		let authors: Author[]
-
-		beforeEach(async () => {
-			const timestamp = new Date();
-			authors = authorFactory.buildList(10, {
-				updatedAt: timestamp,
-				createdAt: timestamp
-			})
-			await prisma.author.createMany({
-				data: authors
-			})
-		})
-
-		test('can list all blog authors', async () => {
-			const result = await blogService.getBloggers()
-
-			expect(result.isOk()).toBe(true)
-			expect(result.value.data).toEqualSortedBy(authors, 'id')
-		})
-
-	})
-})
+      expect(result.isOk()).toBe(true);
+      expect(result.value.data).toEqualSortedBy(authors, "id");
+    });
+  });
+});

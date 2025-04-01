@@ -1,59 +1,62 @@
-import 'reflect-metadata'
-import { Container } from "inversify";
-import pino from 'pino'
-import { PrismaClient } from "@prisma/client"
+import "reflect-metadata";
 import { createKeyv } from "@keyv/valkey";
+import { PrismaClient } from "@prisma/client";
+import { Container } from "inversify";
+import pino from "pino";
 
-import { BlogService } from '../services/blog-service'
-import { BlogRepository } from '../repositories/blog-repository'
-import { RecordsClient } from '../clients/records-client'
-import { addTraceCurried } from '../proxies/add-trace'
-import { AuthorsController } from '../controllers/authors-controller';
-import { PostsController } from '../controllers/posts-controller';
+import { RecordsClient } from "../clients/records-client";
+import { AuthorsController } from "../controllers/authors-controller";
+import { PostsController } from "../controllers/posts-controller";
+import { addTraceCurried } from "../proxies/add-trace";
+import { BlogRepository } from "../repositories/blog-repository";
+import { BlogService } from "../services/blog-service";
 import { IocKeys } from "./ioc-keys";
 
-
 function bind(c: Container) {
-	const logger = pino({
-		level: process.env.LOG_LEVEL || 'info',
-		transport: {
-			target: 'pino-pretty',
-			options: {
-				colorize: true
-			}
-		}
-	})
-	c.bind(IocKeys.LoggerService).toConstantValue(logger);
+  if (!process.env.VALKEY_URL) {
+    throw new Error("Valkey URL not defined");
+  }
 
-	const prismaClient = new PrismaClient()
-	c.bind(IocKeys.PrismaClient).toConstantValue(prismaClient);
+  const logger = pino({
+    level: process.env.LOG_LEVEL || "info",
+    transport: {
+      target: "pino-pretty",
+      options: {
+        colorize: true,
+      },
+    },
+  });
+  c.bind(IocKeys.LoggerService).toConstantValue(logger);
 
-	const keyvInstance = createKeyv(process.env.VALKEY_URL!)
-	c.bind(IocKeys.KeyvClient).toConstantValue(keyvInstance);
+  const prismaClient = new PrismaClient();
+  c.bind(IocKeys.PrismaClient).toConstantValue(prismaClient);
 
-	// Create the addTrace proxy
-	const addTrace = addTraceCurried(logger);
+  const keyvInstance = createKeyv(process.env.VALKEY_URL);
+  c.bind(IocKeys.KeyvClient).toConstantValue(keyvInstance);
 
-	// Bind dependencies with onActivation to wrap them with the proxy.
-	c.bind<RecordsClient>(IocKeys.RecordsClient)
-		.to(RecordsClient)
-		.onActivation((_ctx, instance) => addTrace(instance));
+  // Create the addTrace proxy
+  const addTrace = addTraceCurried(logger);
 
-	c.bind<BlogRepository>(IocKeys.BlogRepository)
-		.to(BlogRepository)
-		.onActivation((_ctx, instance) => addTrace(instance));
+  // Bind dependencies with onActivation to wrap them with the proxy.
+  c.bind<RecordsClient>(IocKeys.RecordsClient)
+    .to(RecordsClient)
+    .onActivation((_ctx, instance) => addTrace(instance));
 
-	c.bind<BlogService>(IocKeys.BlogService)
-		.to(BlogService)
-		.onActivation((_ctx, instance) => addTrace(instance));
+  c.bind<BlogRepository>(IocKeys.BlogRepository)
+    .to(BlogRepository)
+    .onActivation((_ctx, instance) => addTrace(instance));
 
-	c.bind<AuthorsController>(IocKeys.AuthorsController)
-		.to(AuthorsController)
-		.onActivation((_ctx, instance) => addTrace(instance));
+  c.bind<BlogService>(IocKeys.BlogService)
+    .to(BlogService)
+    .onActivation((_ctx, instance) => addTrace(instance));
 
-	c.bind<PostsController>(IocKeys.PostsController)
-		.to(PostsController)
-		.onActivation((_ctx, instance) => addTrace(instance));
+  c.bind<AuthorsController>(IocKeys.AuthorsController)
+    .to(AuthorsController)
+    .onActivation((_ctx, instance) => addTrace(instance));
+
+  c.bind<PostsController>(IocKeys.PostsController)
+    .to(PostsController)
+    .onActivation((_ctx, instance) => addTrace(instance));
 }
 
 const container = new Container();
