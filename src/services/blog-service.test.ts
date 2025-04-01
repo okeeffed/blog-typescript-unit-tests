@@ -134,7 +134,6 @@ describe('BlogService', () => {
 			const result = await blogService.getBloggers()
 
 			expect(result.isOk()).toBe(true)
-
 			expect(result.value.data).toEqualSortedBy(authors, 'id')
 		})
 

@@ -1,6 +1,6 @@
-# The Boundaries of TypeScript Unit Testing
+# The Boundaries of TypeScript Testing
 
-This repo is accompanying a blog post I wrote on some guidelines that I've learned the hard way with TypeScript unit testing. The blog post is available [here]().
+This repo is accompanying a blog post I wrote on some guidelines that I've learned the hard way with TypeScript unit testing. The blog post is available [here](https://www.dennisokeeffe.com/blog/2025-03-29-the-boundaries-of-typescript-testing).
 
 Please note that this repo is accompanying the blog post and not a fully-fledged project. I've omitted some simple basics that you would normally set up around formatting and linting.
 
@@ -24,6 +24,8 @@ npm run dev
 ```
 
 If you go to `http://localhost:3000/docs`, there is a Scalar OpenAPI application you can use to play around.
+
+![Scalar running](./public/scalar.webp)
 
 For running the tests.
 

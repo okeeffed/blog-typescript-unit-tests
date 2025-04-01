@@ -38,9 +38,6 @@ beforeEach(async () => {
 });
 
 afterEach(async () => {
-	// Roll back the transaction
-	await prisma.$executeRaw`ROLLBACK`;
-
 	await keyv.clear();
 	server.resetHandlers();
 });
