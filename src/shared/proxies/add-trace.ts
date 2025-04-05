@@ -1,4 +1,4 @@
-import type { ILoggerService } from "../services/logger-service";
+import type { ILoggerService } from "@/services/logger-service";
 
 /**
  * Adds a trace log to the start and end of any function.
