@@ -5,9 +5,9 @@ import { Container } from "inversify";
 import pino from "pino";
 
 import { RecordsClient } from "../clients/records-client";
-import { AuthorsController } from "../controllers/authors-controller";
-import { PostsController } from "../controllers/posts-controller";
-import { addTraceCurried } from "../proxies/add-trace";
+import { AuthorsController } from "../controllers/authors/authors-controller";
+import { PostsController } from "../controllers/posts/posts-controller";
+import { addTraceCurried } from "../shared/proxies/add-trace";
 import { BlogRepository } from "../repositories/blog-repository";
 import { BlogService } from "../services/blog-service";
 import { IocKeys } from "./ioc-keys";

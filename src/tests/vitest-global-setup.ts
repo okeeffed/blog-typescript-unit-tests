@@ -1,5 +1,5 @@
 import { execSync } from "node:child_process";
-import { psqlContainer, valkeyContainer } from "../lib/testcontainers";
+import { psqlContainer, valkeyContainer } from "@/lib/testcontainers";
 
 export async function setup() {
   // Start the PostgreSQL container

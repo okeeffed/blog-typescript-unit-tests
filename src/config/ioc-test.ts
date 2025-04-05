@@ -4,8 +4,8 @@ import { Container } from "inversify";
 import pino from "pino";
 
 import { RecordsClient } from "../clients/records-client";
-import { AuthorsController } from "../controllers/authors-controller";
-import { PostsController } from "../controllers/posts-controller";
+import { AuthorsController } from "../controllers/authors/authors-controller";
+import { PostsController } from "../controllers/posts/posts-controller";
 import { BlogRepository } from "../repositories/blog-repository";
 import { BlogService } from "../services/blog-service";
 import { IocKeys } from "./ioc-keys";

@@ -1,9 +1,9 @@
 import type KeyvValkey from "@keyv/valkey";
 import type { PrismaClient } from "@prisma/client";
 import { afterAll, afterEach, beforeAll, beforeEach } from "vitest";
-import { IocKeys } from "../config/ioc-keys";
-import { container } from "../config/ioc-test";
-import { server } from "../mocks/server";
+import { IocKeys } from "@/config/ioc-keys";
+import { container } from "@/config/ioc-test";
+import { server } from "@/shared/mocks/server";
 
 const keyv = container.get<KeyvValkey>(IocKeys.KeyvClient);
 const prisma = container.get<PrismaClient>(IocKeys.PrismaClient);

@@ -1,18 +1,11 @@
-import { postFactory } from "@/mocks/post-factory";
-import { postArraySchema, postSchemaSerialised } from "@/schemas/schemas";
+import { postFactory } from "@/shared/mocks/post-factory";
+import { postArraySchema, postSchemaSerialised } from "@/shared/schemas/post";
 import type { BlogService } from "@/services/blog-service";
 import { faker } from "@faker-js/faker";
 import type { Post, PrismaClient } from "@prisma/client";
-import {
-  afterEach,
-  beforeAll,
-  beforeEach,
-  describe,
-  expect,
-  test,
-} from "vitest";
-import { IocKeys } from "../config/ioc-keys";
-import { container } from "../config/ioc-test";
+import { beforeAll, beforeEach, describe, expect, test } from "vitest";
+import { IocKeys } from "@/config/ioc-keys";
+import { container } from "@/config/ioc-test";
 import { PostsController } from "./posts-controller";
 
 describe("PostsController", () => {

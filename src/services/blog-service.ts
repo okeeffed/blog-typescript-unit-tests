@@ -6,7 +6,7 @@ import type {
   CreateBlogBody,
   GetBlogParam,
   GetBlogsQuery,
-} from "../schemas/schemas";
+} from "@/shared/schemas/post";
 
 @injectable()
 export class BlogService {

@@ -1,5 +1,5 @@
 import { IocKeys } from "@/config/ioc-keys";
-import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
+import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 import { inject, injectable } from "inversify";
 import {
   createBlogBody,
@@ -10,8 +10,8 @@ import {
   postArraySchema,
   postSchema,
   unpublishBlogParam,
-} from "../schemas/schemas";
-import type { BlogService } from "../services/blog-service";
+} from "@/shared/schemas/post";
+import type { BlogService } from "@/services/blog-service";
 
 @injectable()
 export class PostsController extends OpenAPIHono {

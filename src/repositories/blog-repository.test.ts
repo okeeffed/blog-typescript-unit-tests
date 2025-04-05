@@ -1,10 +1,10 @@
-import { authorFactory } from "@/mocks/author-factory";
-import { postFactory } from "@/mocks/post-factory";
+import { authorFactory } from "@/shared/mocks/author-factory";
+import { postFactory } from "@/shared/mocks/post-factory";
 import { faker } from "@faker-js/faker";
 import type { Author, Post, PrismaClient } from "@prisma/client";
-import { afterEach, beforeEach, describe, expect, test } from "vitest";
-import { IocKeys } from "../config/ioc-keys";
-import { container } from "../config/ioc-test";
+import { beforeEach, describe, expect, test } from "vitest";
+import { IocKeys } from "@/config/ioc-keys";
+import { container } from "@/config/ioc-test";
 import type { BlogRepository } from "./blog-repository";
 
 describe("BlogRepository", () => {

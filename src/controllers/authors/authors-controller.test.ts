@@ -1,16 +1,10 @@
-import { authorFactory } from "@/mocks/author-factory";
-import { authorArraySchema } from "@/schemas/schemas";
+import { authorFactory } from "@/shared/mocks/author-factory";
+import { authorArraySchema } from "@/shared/schemas/author";
 import type { Author, PrismaClient } from "@prisma/client";
-import {
-  afterEach,
-  beforeAll,
-  beforeEach,
-  describe,
-  expect,
-  test,
-} from "vitest";
-import { IocKeys } from "../config/ioc-keys";
-import { container } from "../config/ioc-test";
+
+import { beforeAll, beforeEach, describe, expect, test } from "vitest";
+import { IocKeys } from "@/config/ioc-keys";
+import { container } from "@/config/ioc-test";
 import type { AuthorsController } from "./authors-controller";
 
 describe("AuthorsController", () => {

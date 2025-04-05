@@ -3,16 +3,16 @@ import type { Post } from "@prisma/client";
 import { inject, injectable } from "inversify";
 import { err, ok } from "neverthrow";
 import superjson from "superjson";
-import { IocKeys } from "../config/ioc-keys";
-import type { IKeyvClient } from "../lib/keyv";
-import type { IPrismaClient } from "../lib/prisma";
-import {
-  type CreateBlogBody,
-  type GetBlogParam,
-  type GetBlogsQuery,
-  type UnpublishBlogParam,
-  authorSchema,
-} from "../schemas/schemas";
+import { IocKeys } from "@/config/ioc-keys";
+import type { IKeyvClient } from "@/lib/keyv";
+import type { IPrismaClient } from "@/lib/prisma";
+import type {
+  CreateBlogBody,
+  GetBlogParam,
+  GetBlogsQuery,
+  UnpublishBlogParam,
+} from "@/shared/schemas/post";
+import { authorSchema } from "@/shared/schemas/author";
 
 @injectable()
 export class BlogRepository {

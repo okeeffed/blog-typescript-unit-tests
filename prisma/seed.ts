@@ -1,7 +1,7 @@
-import { authorsToPostsFactory } from "@/mocks/author-to-posts-factory";
+import { authorsToPostsFactory } from "@/shared/mocks/author-to-posts-factory";
 import { faker } from "@faker-js/faker";
 import { PrismaClient } from "@prisma/client";
-import * as d from "../src/mocks/seed-data";
+import * as d from "@/shared/mocks/seed-data";
 
 faker.seed(0);
 

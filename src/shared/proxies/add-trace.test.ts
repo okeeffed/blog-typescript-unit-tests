@@ -1,7 +1,7 @@
 import { IocKeys } from "@/config/ioc-keys";
 import type { ILoggerService } from "@/services/logger-service";
 import { beforeEach, describe, expect, test, vi } from "vitest";
-import { container } from "../config/ioc-test";
+import { container } from "@/config/ioc-test";
 import { addTrace, addTraceCurried } from "./add-trace";
 
 class Target {

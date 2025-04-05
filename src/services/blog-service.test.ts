@@ -1,6 +1,6 @@
-import { authorFactory } from "@/mocks/author-factory";
-import { postFactory } from "@/mocks/post-factory";
-import type { CreateBlogBody } from "@/schemas/schemas";
+import { authorFactory } from "@/shared/mocks/author-factory";
+import { postFactory } from "@/shared/mocks/post-factory";
+import type { CreateBlogBody } from "@/shared/schemas/post";
 import { faker } from "@faker-js/faker";
 import type { Author, Post, PrismaClient } from "@prisma/client";
 import { beforeEach, describe, expect, test } from "vitest";

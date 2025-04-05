@@ -1,8 +1,8 @@
+import { inject, injectable } from "inversify";
 import { IocKeys } from "@/config/ioc-keys";
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
-import { inject, injectable } from "inversify";
-import { authorArraySchema } from "../schemas/schemas";
-import type { BlogService } from "../services/blog-service";
+import type { BlogService } from "@/services/blog-service";
+import { authorArraySchema } from "@/shared/schemas/author";
 
 @injectable()
 export class AuthorsController extends OpenAPIHono {
