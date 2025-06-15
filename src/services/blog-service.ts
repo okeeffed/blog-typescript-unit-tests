@@ -1,5 +1,6 @@
 import { IocKeys } from "@/config/ioc-keys";
 import { inject, injectable } from "inversify";
+import { ok, safeTry } from "neverthrow";
 import type { RecordsClient } from "../clients/records-client";
 import type { BlogRepository } from "../repositories/blog-repository";
 import type {
@@ -32,17 +33,19 @@ export class BlogService {
     return result;
   }
 
-  async unpublishBlog(ctx: { param: { blogId: string } }) {
-    const result = await this.blogRepository.unpublishBlog(ctx);
+  unpublishBlog(ctx: { param: { blogId: string } }) {
+    const { blogRepository, recordsClient } = this;
+    return safeTry(async function* () {
+      const result = yield* await blogRepository.unpublishBlog(ctx);
+      // NOTE: This is simplified and not handling any edge cases.
+      // More for demonstrating MSW in action.
+      yield* await recordsClient.putRecord({
+        type: "DELETE",
+        data: JSON.stringify(result),
+      });
 
-    // NOTE: This is simplified and not handling any edge cases.
-    // More for demonstrating MSW in action.
-    await this.recordsClient.putRecord({
-      type: "DELETE",
-      data: JSON.stringify(result.value),
+      return ok(result);
     });
-
-    return result;
   }
 
   async getBlog(ctx: { param: GetBlogParam }) {
