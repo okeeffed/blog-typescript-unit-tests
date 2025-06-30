@@ -1,4 +1,3 @@
-import "reflect-metadata";
 import { OpenAPIHono } from "@hono/zod-openapi";
 
 import { container } from "@/config/ioc";

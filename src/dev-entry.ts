@@ -1,6 +1,5 @@
 // src/dev-server.ts
 import "dotenv/config";
-import "reflect-metadata";
 
 import { serve } from "@hono/node-server";
 import { swaggerUI } from "@hono/swagger-ui";
