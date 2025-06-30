@@ -3,7 +3,6 @@ import { authorArraySchema } from "@/shared/schemas/author";
 import type { Author, PrismaClient } from "@prisma/client";
 
 import { beforeAll, beforeEach, describe, expect, test } from "vitest";
-import { IocKeys } from "@/config/ioc-keys";
 import { container } from "@/config/ioc-test";
 import type { AuthorsController } from "./authors-controller";
 
@@ -14,8 +13,8 @@ describe("AuthorsController", () => {
   let prisma: PrismaClient;
 
   beforeAll(async () => {
-    app = container.get<AuthorsController>(IocKeys.AuthorsController);
-    prisma = container.get<PrismaClient>(IocKeys.PrismaClient);
+    app = container.resolve("authorsController");
+    prisma = container.resolve("prismaClient");
 
     baseHeaders = {
       "content-type": "application/json",

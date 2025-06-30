@@ -1,41 +1,21 @@
-import { createKeyv } from "@keyv/valkey";
-import { PrismaClient } from "@prisma/client";
-import { Container } from "inversify";
-import pino from "pino";
+import * as awilix from "awilix";
 
-import { RecordsClient } from "../clients/records-client";
-import { AuthorsController } from "../controllers/authors/authors-controller";
-import { PostsController } from "../controllers/posts/posts-controller";
-import { BlogRepository } from "../repositories/blog-repository";
-import { BlogService } from "../services/blog-service";
-import { IocKeys } from "./ioc-keys";
+import { container } from "./ioc";
+import { RecordsClient } from "@/clients/records-client";
+import { BlogRepository } from "@/repositories/blog-repository";
+import { BlogService } from "@/services/blog-service";
+import { AuthorsController } from "@/controllers/authors/authors-controller";
+import { PostsController } from "@/controllers/posts/posts-controller";
 
-function bind(c: Container) {
-  if (!process.env.VALKEY_URL) {
-    throw new Error("Valkey URL not defined");
-  }
+container.register({
+  recordsClient: awilix.asClass(RecordsClient).singleton(),
+  blogRepository: awilix.asClass(BlogRepository).singleton(),
+  blogService: awilix.asClass(BlogService).singleton(),
+  authorsController: awilix.asClass(AuthorsController).singleton(),
+  postsController: awilix.asClass(PostsController).singleton(),
+});
 
-  const logger = pino({
-    enabled: false,
-  });
-  c.bind(IocKeys.LoggerService).toConstantValue(logger);
-
-  // Create the original Prisma client and then wrap it
-  const prismaClient = new PrismaClient();
-  c.bind(IocKeys.PrismaClient).toConstantValue(prismaClient);
-
-  const keyvInstance = createKeyv(process.env.VALKEY_URL);
-  c.bind(IocKeys.KeyvClient).toConstantValue(keyvInstance);
-
-  // Bind controllers
-  c.bind(IocKeys.RecordsClient).to(RecordsClient);
-  c.bind(IocKeys.BlogRepository).to(BlogRepository);
-  c.bind(IocKeys.BlogService).to(BlogService);
-  c.bind(IocKeys.AuthorsController).to(AuthorsController);
-  c.bind(IocKeys.PostsController).to(PostsController);
-}
-
-const container = new Container();
-bind(container);
+// Rebind
+container.dispose();
 
 export { container };

@@ -1,6 +1,4 @@
-import { IocKeys } from "@/config/ioc-keys";
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
-import { inject, injectable } from "inversify";
 import {
   createBlogBody,
   getBlogById200Response,
@@ -13,11 +11,10 @@ import {
 } from "@/shared/schemas/post";
 import type { BlogService } from "@/services/blog-service";
 
-@injectable()
 export class PostsController extends OpenAPIHono {
   private blogService: BlogService;
 
-  constructor(@inject(IocKeys.BlogService) blogService: BlogService) {
+  constructor({ blogService }: { blogService: BlogService }) {
     super();
     this.blogService = blogService;
 
@@ -175,6 +172,9 @@ export class PostsController extends OpenAPIHono {
       async (c) => {
         const param = { blogId: c.req.param("blogId") };
         const result = await this.blogService.unpublishBlog({ param });
+        if (result.isErr()) {
+          throw new Error("Unexpected scenario");
+        }
         return c.json(result.value, 200);
       },
     );

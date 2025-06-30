@@ -125,8 +125,6 @@ export class TsRestClient {
 
       throw error;
     }
-
-    throw new Error("Unreachable code");
   }
 
   private isRetryable(error: unknown): boolean {

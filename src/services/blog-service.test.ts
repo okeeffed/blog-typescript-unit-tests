@@ -4,7 +4,6 @@ import type { CreateBlogBody } from "@/shared/schemas/post";
 import { faker } from "@faker-js/faker";
 import type { Author, Post, PrismaClient } from "@prisma/client";
 import { beforeEach, describe, expect, test } from "vitest";
-import { IocKeys } from "../config/ioc-keys";
 import { container } from "../config/ioc-test";
 import type { BlogService } from "./blog-service";
 
@@ -13,8 +12,8 @@ describe("BlogService", () => {
   let prisma: PrismaClient;
 
   beforeEach(() => {
-    blogService = container.get<BlogService>(IocKeys.BlogService);
-    prisma = container.get<PrismaClient>(IocKeys.PrismaClient);
+    blogService = container.resolve("blogService");
+    prisma = container.resolve("prismaClient");
   });
 
   describe("createBlog", () => {
@@ -52,7 +51,9 @@ describe("BlogService", () => {
         param: { blogId: post.id },
       });
       expect(result.isOk()).toBe(true);
-      expect(result.value.published).toBe(false);
+      if (result.isOk()) {
+        expect(result.value.published).toBe(false);
+      }
     });
   });
 
