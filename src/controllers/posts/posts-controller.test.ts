@@ -4,7 +4,6 @@ import type { BlogService } from "@/services/blog-service";
 import { faker } from "@faker-js/faker";
 import type { Post, PrismaClient } from "@prisma/client";
 import { beforeAll, beforeEach, describe, expect, test } from "vitest";
-import { IocKeys } from "@/config/ioc-keys";
 import { container } from "@/config/ioc-test";
 import { PostsController } from "./posts-controller";
 
@@ -16,9 +15,9 @@ describe("PostsController", () => {
   let prisma: PrismaClient;
 
   beforeAll(async () => {
-    blogService = container.get<BlogService>(IocKeys.BlogService);
-    prisma = container.get<PrismaClient>(IocKeys.PrismaClient);
-    app = new PostsController(blogService);
+    blogService = container.resolve("blogService");
+    prisma = container.resolve("prismaClient");
+    app = new PostsController({ blogService });
 
     baseHeaders = {
       "content-type": "application/json",

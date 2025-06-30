@@ -76,5 +76,5 @@ export function addTrace<T extends object>(
  */
 export const addTraceCurried =
   (logger: ILoggerService) =>
-  <T extends object>(classObj: T): T =>
+  <T>(classObj: T): T =>
     addTrace(classObj, logger);

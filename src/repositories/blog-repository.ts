@@ -1,9 +1,7 @@
 import { BlogNotFoundError } from "@/errors/blog-not-found-error";
 import type { Post } from "@prisma/client";
-import { inject, injectable } from "inversify";
 import { err, ok } from "neverthrow";
 import superjson from "superjson";
-import { IocKeys } from "@/config/ioc-keys";
 import type { IKeyvClient } from "@/lib/keyv";
 import type { IPrismaClient } from "@/lib/prisma";
 import type {
@@ -14,17 +12,19 @@ import type {
 } from "@/shared/schemas/post";
 import { authorSchema } from "@/shared/schemas/author";
 
-@injectable()
 export class BlogRepository {
   private postgresClient: IPrismaClient;
   private cacheClient: IKeyvClient;
 
-  constructor(
-    @inject(IocKeys.PrismaClient) postgresClient: IPrismaClient,
-    @inject(IocKeys.KeyvClient) cacheClient: IKeyvClient,
-  ) {
-    this.postgresClient = postgresClient;
-    this.cacheClient = cacheClient;
+  constructor({
+    prismaClient,
+    keyvClient,
+  }: {
+    prismaClient: IPrismaClient;
+    keyvClient: IKeyvClient;
+  }) {
+    this.postgresClient = prismaClient;
+    this.cacheClient = keyvClient;
   }
 
   async createBlog(ctx: { body: CreateBlogBody }) {

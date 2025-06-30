@@ -1,5 +1,3 @@
-import { IocKeys } from "@/config/ioc-keys";
-import { inject, injectable } from "inversify";
 import { ok, safeTry } from "neverthrow";
 import type { RecordsClient } from "../clients/records-client";
 import type { BlogRepository } from "../repositories/blog-repository";
@@ -9,15 +7,17 @@ import type {
   GetBlogsQuery,
 } from "@/shared/schemas/post";
 
-@injectable()
 export class BlogService {
   private blogRepository: BlogRepository;
   private recordsClient: RecordsClient;
 
-  constructor(
-    @inject(IocKeys.BlogRepository) blogRepository: BlogRepository,
-    @inject(IocKeys.RecordsClient) recordsClient: RecordsClient,
-  ) {
+  constructor({
+    blogRepository,
+    recordsClient,
+  }: {
+    blogRepository: BlogRepository;
+    recordsClient: RecordsClient;
+  }) {
     this.blogRepository = blogRepository;
     this.recordsClient = recordsClient;
   }
