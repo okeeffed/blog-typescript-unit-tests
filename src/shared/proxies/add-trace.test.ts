@@ -1,4 +1,3 @@
-import { IocKeys } from "@/config/ioc-keys";
 import type { ILoggerService } from "@/services/logger-service";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 import { container } from "@/config/ioc-test";
@@ -18,7 +17,7 @@ describe("trace proxies", () => {
   let logger: ILoggerService;
 
   beforeEach(() => {
-    logger = container.get<ILoggerService>(IocKeys.LoggerService);
+    logger = container.resolve("loggerService");
   });
 
   describe("addTrace", () => {
