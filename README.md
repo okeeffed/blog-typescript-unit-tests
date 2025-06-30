@@ -20,6 +20,7 @@ For running the actual application.
 cp .env.example .env
 npm install
 docker compose up -d
+npx prisma migrate dev
 npm run dev
 ```
 
@@ -36,4 +37,3 @@ npm run test
 ```
 
 The tests make use of Testcontainers to spin up a Postgres and Valkey database for the tests.
-
