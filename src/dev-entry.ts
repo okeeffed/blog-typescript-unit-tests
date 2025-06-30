@@ -4,7 +4,7 @@ import "dotenv/config";
 import { serve } from "@hono/node-server";
 import { swaggerUI } from "@hono/swagger-ui";
 import { app } from "./index";
-import { setupMockServer } from "./mocks/server";
+import { setupMockServer } from "./shared/mocks/server";
 
 async function startDevServer() {
   console.log("🚀 Starting development server with mocks...");
