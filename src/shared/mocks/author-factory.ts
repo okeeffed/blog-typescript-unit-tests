@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import type { Author } from "@prisma/client";
+import type { Author } from "@/db/client";
 import { Factory } from "fishery";
 
 export const authorFactory = Factory.define<Author>(() => {

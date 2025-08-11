@@ -1,3 +1,3 @@
-import type { PrismaClient } from "@prisma/client";
+import type { PrismaClient } from "@/db/client";
 
 export type IPrismaClient = PrismaClient;

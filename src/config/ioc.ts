@@ -1,5 +1,5 @@
 import { createKeyv } from "@keyv/valkey";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@/db/client";
 import * as awilix from "awilix";
 import pino, { type Logger } from "pino";
 
@@ -10,6 +10,7 @@ import { addTraceCurried } from "../shared/proxies/add-trace";
 import { BlogRepository } from "../repositories/blog-repository";
 import { BlogService } from "../services/blog-service";
 import { OpenAPIHono } from "@hono/zod-openapi";
+import { PrismaPg } from '@prisma/adapter-pg'
 
 const logger = pino({
   level: process.env.LOG_LEVEL || "info",
@@ -99,7 +100,10 @@ const asController = <T extends OpenAPIHono>(
 };
 
 const container = awilix.createContainer<Container>();
-const prismaClient = new PrismaClient();
+const connectionString = `${process.env.DATABASE_URL}`
+
+const adapter = new PrismaPg({ connectionString })
+const prismaClient = new PrismaClient({ adapter })
 const keyvInstance = createKeyv(process.env.VALKEY_URL as string);
 
 container.register({

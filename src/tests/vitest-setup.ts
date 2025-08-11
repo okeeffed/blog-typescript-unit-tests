@@ -11,7 +11,7 @@ const prisma = container.resolve("prismaClient");
 async function cleanDatabase() {
   // Get all tables
   const tables = await prisma.$queryRaw<Array<{ tablename: string }>>`
-    SELECT tablename FROM pg_tables 
+    SELECT tablename::text FROM pg_tables 
     WHERE schemaname='public' 
     AND tablename NOT IN ('_prisma_migrations')
   `;

@@ -1,6 +1,6 @@
 import { authorFactory } from "@/shared/mocks/author-factory";
 import { authorArraySchema } from "@/shared/schemas/author";
-import type { Author, PrismaClient } from "@prisma/client";
+import type { Author, PrismaClient } from "@/db/client";
 
 import { beforeAll, beforeEach, describe, expect, test } from "vitest";
 import { container } from "@/config/ioc-test";

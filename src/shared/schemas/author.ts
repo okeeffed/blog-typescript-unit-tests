@@ -1,5 +1,5 @@
 import { z } from "@hono/zod-openapi";
-import type { Author } from "@prisma/client";
+import type { Author } from "@/db/client";
 import { type TypeEqual, expectType } from "ts-expect";
 
 export const authorSchema = z.object({

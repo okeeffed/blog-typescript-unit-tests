@@ -1,5 +1,4 @@
 import { BlogNotFoundError } from "@/errors/blog-not-found-error";
-import type { Post } from "@prisma/client";
 import { err, ok } from "neverthrow";
 import superjson from "superjson";
 import type { IKeyvClient } from "@/lib/keyv";
@@ -13,6 +12,7 @@ import {
 } from "@/shared/schemas/post";
 import { authorSchema } from "@/shared/schemas/author";
 import { BlogData } from "@/models/blog-data";
+import { createPost, unpublishPost, getPostById, getPostsByPublished, getAllAuthors } from '@/db/sql'
 
 export class BlogRepository {
   private postgresClient: IPrismaClient;
@@ -30,13 +30,11 @@ export class BlogRepository {
   }
 
   async createBlog(ctx: { body: CreateBlogBody }) {
-    const blog = await this.postgresClient.post.create({
-      data: {
-        title: ctx.body.title,
-        content: ctx.body.content,
-        published: true,
-      },
-    });
+    const [blog] = await this.postgresClient.$queryRawTyped(createPost(ctx.body.title, ctx.body.content))
+
+    if (!blog) {
+      throw new Error("No blog created")
+    }
 
     return ok(new BlogData(blog));
   }
@@ -44,14 +42,11 @@ export class BlogRepository {
   async unpublishBlog(ctx: { param: UnpublishBlogParam }) {
     await this.cacheClient.delete(ctx.param.blogId);
 
-    const blog = await this.postgresClient.post.update({
-      where: {
-        id: ctx.param.blogId,
-      },
-      data: {
-        published: false,
-      },
-    });
+    const [blog] = await this.postgresClient.$queryRawTyped(unpublishPost(ctx.param.blogId));
+
+    if (!blog) {
+      throw new Error("No blog found to unpublish");
+    }
 
     return ok(new BlogData(blog));
   }
@@ -62,11 +57,7 @@ export class BlogRepository {
       return ok({ data: new BlogData(JSON.parse(cachedResult)), _cacheHit: true });
     }
 
-    const blog = await this.postgresClient.post.findUnique({
-      where: {
-        id: ctx.param.blogId,
-      },
-    });
+    const [blog] = await this.postgresClient.$queryRawTyped(getPostById(ctx.param.blogId));
 
     if (!blog) {
       return err(new BlogNotFoundError(ctx.param.blogId));
@@ -95,11 +86,7 @@ export class BlogRepository {
 
     }
 
-    const blogs = await this.postgresClient.post.findMany({
-      where: {
-        published: ctx.query.published,
-      },
-    });
+    const blogs = await this.postgresClient.$queryRawTyped(getPostsByPublished(ctx.query.published));
 
     await this.cacheClient.set(key, superjson.stringify(blogs), 1000 * 60 * 1);
     return ok({ data: blogs.map(d => new BlogData(d)), _cacheHit: false });
@@ -119,7 +106,7 @@ export class BlogRepository {
       }
     }
 
-    const bloggers = await this.postgresClient.author.findMany();
+    const bloggers = await this.postgresClient.$queryRawTyped(getAllAuthors());
     await this.cacheClient.set(
       "bloggers",
       superjson.stringify(bloggers),

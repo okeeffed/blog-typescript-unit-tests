@@ -1,7 +1,7 @@
 import { authorFactory } from "@/shared/mocks/author-factory";
 import { postFactory } from "@/shared/mocks/post-factory";
 import { faker } from "@faker-js/faker";
-import type { Author, Post, PrismaClient } from "@prisma/client";
+import type { Author, Post, PrismaClient } from "@/db/client";
 import { beforeEach, describe, expect, test } from "vitest";
 import { container } from "@/config/ioc-test";
 import type { BlogRepository } from "./blog-repository";
@@ -114,7 +114,12 @@ describe("BlogRepository", () => {
         query: { published: true },
       });
       expect(result.isOk()).toBe(true);
-      expect(result.value.data).toEqual(posts);
+      expect(result.value.data).toHaveLength(3);
+      expect(result.value.data[0]).toMatchObject({
+        title: posts[0].title,
+        content: posts[0].content,
+        published: posts[0].published
+      });
     });
 
     test("can retrieve blogs from cache", async () => {

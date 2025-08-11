@@ -1,5 +1,5 @@
 import { z } from "@hono/zod-openapi";
-import type { Post } from "@prisma/client";
+import type { Post } from "@/db/client";
 import { type TypeEqual, expectType } from "ts-expect";
 
 export const postSchema = z.object({

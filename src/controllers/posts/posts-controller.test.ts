@@ -2,7 +2,7 @@ import { postFactory } from "@/shared/mocks/post-factory";
 import { postArraySchema, postSchemaSerialised } from "@/shared/schemas/post";
 import type { BlogService } from "@/services/blog-service";
 import { faker } from "@faker-js/faker";
-import type { Post, PrismaClient } from "@prisma/client";
+import type { Post, PrismaClient } from "@/db/client";
 import { beforeAll, beforeEach, describe, expect, test } from "vitest";
 import { container } from "@/config/ioc-test";
 import { PostsController } from "./posts-controller";
@@ -17,7 +17,7 @@ describe("PostsController", () => {
   beforeAll(async () => {
     blogService = container.resolve("blogService");
     prisma = container.resolve("prismaClient");
-    app = new PostsController({ blogService });
+    app = container.resolve("postsController");
 
     baseHeaders = {
       "content-type": "application/json",
@@ -37,7 +37,7 @@ describe("PostsController", () => {
 
   describe("GET /", () => {
     test("should return a list of posts", async () => {
-      const response = await app.request("/", {
+      const response = await app.request("/?published=true", {
         method: "GET",
         headers: baseHeaders,
       });
@@ -57,7 +57,7 @@ describe("PostsController", () => {
     });
 
     test("should return cache headers as expected", async () => {
-      const response = await app.request("/", {
+      const response = await app.request("/?published=true", {
         method: "GET",
         headers: baseHeaders,
       });
@@ -65,7 +65,7 @@ describe("PostsController", () => {
       expect(response.status).toBe(200);
       expect(response.headers.get("X-Cache-Hit")).toBe("false");
 
-      const cachedResponse = await app.request("/", {
+      const cachedResponse = await app.request("/?published=true", {
         method: "GET",
         headers: baseHeaders,
       });

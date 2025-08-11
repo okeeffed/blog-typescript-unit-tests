@@ -4,3 +4,29 @@ node_modules
 .env
 coverage/*
 lcov-report/*
+
+# Prisma generated files
+src/db/client.js
+src/db/client.d.ts
+src/db/default.js
+src/db/default.d.ts
+src/db/edge.js
+src/db/edge.d.ts
+src/db/index.js
+src/db/index.d.ts
+src/db/index-browser.js
+src/db/package.json
+src/db/runtime/
+src/db/sql/
+src/db/*.wasm
+src/db/wasm.js
+src/db/wasm.d.ts
+src/db/*-loader.mjs
+src/db/query_compiler_bg.js
+
+# Keep these Prisma source files:
+# src/db/schema.prisma
+# src/db/seed.ts  
+# src/db/migrations/
+# src/db/queries/*.sql
+# src/db/views/

@@ -9,7 +9,8 @@
     "dev:docker:down": "docker compose down",
     "test": "vitest run --coverage",
     "test:watch": "vitest",
-    "prisma:reset": "npx prisma migrate reset",
+    "prisma:reset": "prisma migrate reset",
+    "prisma:sql": "prisma generate --sql",
     "knip": "knip",
     "format": "npx @biomejs/biome format --write src",
     "lint": "npx @biomejs/biome lint --write src",
@@ -23,7 +24,8 @@
     "@hono/swagger-ui": "^0.5.1",
     "@hono/zod-openapi": "^0.19.2",
     "@hono/zod-validator": "^0.4.3",
-    "@prisma/client": "^6.5.0",
+    "@prisma/adapter-pg": "^6.13.0",
+    "@prisma/client": "^6.13.0",
     "@scalar/hono-api-reference": "^0.7.4",
     "@ts-rest/core": "^3.52.1",
     "awilix": "^12.0.5",
@@ -34,7 +36,7 @@
     "neverthrow": "^8.2.0",
     "pino": "^9.6.0",
     "pino-pretty": "^13.0.0",
-    "prisma": "^6.5.0",
+    "prisma": "^6.13.0",
     "superjson": "^1.13.3",
     "zod": "^3.24.2",
     "zod-openapi": "^4.2.4"
@@ -59,8 +61,5 @@
     "typescript": "^5.8.2",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^3.0.9"
-  },
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
   }
 }

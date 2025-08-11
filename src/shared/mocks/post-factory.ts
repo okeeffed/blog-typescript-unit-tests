@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import type { Post } from "@prisma/client";
+import type { Post } from "@/db/client";
 import { Factory } from "fishery";
 
 export const postFactory = Factory.define<Post>(() => {

@@ -16,6 +16,12 @@ export async function setup() {
     stdio: "inherit",
     env: { ...process.env, DATABASE_URL: databaseUrl },
   });
+
+  // Generate TypedSQL queries
+  execSync("npx prisma generate --sql", {
+    stdio: "inherit",
+    env: { ...process.env, DATABASE_URL: databaseUrl },
+  });
 }
 
 export async function teardown() {
