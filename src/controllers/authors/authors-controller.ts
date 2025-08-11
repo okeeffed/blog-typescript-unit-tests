@@ -1,4 +1,4 @@
-import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
+import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
 import type { BlogService } from "@/services/blog-service";
 import { authorArraySchema } from "@/shared/schemas/author";
 
@@ -8,8 +8,6 @@ export class AuthorsController extends OpenAPIHono {
   constructor({ blogService }: { blogService: BlogService }) {
     super();
     this.blogService = blogService;
-
-    this.list();
   }
 
   public list() {

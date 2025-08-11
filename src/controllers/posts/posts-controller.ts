@@ -1,4 +1,4 @@
-import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
+import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
 import {
   createBlogBody,
   getBlogById200Response,
@@ -17,11 +17,6 @@ export class PostsController extends OpenAPIHono {
   constructor({ blogService }: { blogService: BlogService }) {
     super();
     this.blogService = blogService;
-
-    this.list();
-    this.create();
-    this.getById();
-    this.unpublish();
   }
 
   public list() {
