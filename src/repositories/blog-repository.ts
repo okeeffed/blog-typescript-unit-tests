@@ -4,13 +4,15 @@ import { err, ok } from "neverthrow";
 import superjson from "superjson";
 import type { IKeyvClient } from "@/lib/keyv";
 import type { IPrismaClient } from "@/lib/prisma";
-import type {
-  CreateBlogBody,
-  GetBlogParam,
-  GetBlogsQuery,
-  UnpublishBlogParam,
+import {
+  postSchema,
+  type CreateBlogBody,
+  type GetBlogParam,
+  type GetBlogsQuery,
+  type UnpublishBlogParam,
 } from "@/shared/schemas/post";
 import { authorSchema } from "@/shared/schemas/author";
+import { BlogData } from "@/models/blog-data";
 
 export class BlogRepository {
   private postgresClient: IPrismaClient;
@@ -36,7 +38,7 @@ export class BlogRepository {
       },
     });
 
-    return ok(blog);
+    return ok(new BlogData(blog));
   }
 
   async unpublishBlog(ctx: { param: UnpublishBlogParam }) {
@@ -51,13 +53,13 @@ export class BlogRepository {
       },
     });
 
-    return ok(blog);
+    return ok(new BlogData(blog));
   }
 
   async getBlog(ctx: { param: GetBlogParam }) {
     const cachedResult = await this.cacheClient.get(ctx.param.blogId);
     if (cachedResult) {
-      return ok({ data: JSON.parse(cachedResult) as Post, _cacheHit: true });
+      return ok({ data: new BlogData(JSON.parse(cachedResult)), _cacheHit: true });
     }
 
     const blog = await this.postgresClient.post.findUnique({
@@ -75,14 +77,22 @@ export class BlogRepository {
       JSON.stringify(blog),
       1000 * 60 * 1,
     );
-    return ok({ data: blog, _cacheHit: false });
+    return ok({ data: new BlogData(blog), _cacheHit: false });
   }
 
   async getBlogs(ctx: { query: GetBlogsQuery }) {
     const key = `getBlogs ${JSON.stringify(ctx.query)}`;
     const cachedResult = await this.cacheClient.get(key);
     if (cachedResult) {
-      return ok({ data: JSON.parse(cachedResult), _cacheHit: true });
+      const parsedResult = await postSchema.array().safeParseAsync(superjson.parse(cachedResult))
+
+      if (parsedResult.success) {
+        const serialisedData = parsedResult.data.map(d => new BlogData(d))
+        return ok({ data: serialisedData, _cacheHit: true });
+      } else {
+        return err(new Error('Failed'))
+      }
+
     }
 
     const blogs = await this.postgresClient.post.findMany({
@@ -91,8 +101,8 @@ export class BlogRepository {
       },
     });
 
-    await this.cacheClient.set(key, JSON.stringify(blogs), 1000 * 60 * 1);
-    return ok({ data: blogs, _cacheHit: false });
+    await this.cacheClient.set(key, superjson.stringify(blogs), 1000 * 60 * 1);
+    return ok({ data: blogs.map(d => new BlogData(d)), _cacheHit: false });
   }
 
   async getBloggers() {
@@ -104,6 +114,8 @@ export class BlogRepository {
 
       if (parsedResult.success) {
         return ok({ data: parsedResult.data, _cacheHit: true });
+      } else {
+        return err(new Error('Failed'))
       }
     }
 

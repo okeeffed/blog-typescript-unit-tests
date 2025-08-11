@@ -12,11 +12,11 @@ import {
 import type { BlogService } from "@/services/blog-service";
 
 export class PostsController extends OpenAPIHono {
-  private blogService: BlogService;
+  #blogService: BlogService;
 
   constructor({ blogService }: { blogService: BlogService }) {
     super();
-    this.blogService = blogService;
+    this.#blogService = blogService;
   }
 
   public list() {
@@ -40,7 +40,7 @@ export class PostsController extends OpenAPIHono {
         },
       }),
       async (c) => {
-        const result = await this.blogService.getBlogs({
+        const result = await this.#blogService.getBlogs({
           query: c.req.valid("query"),
         });
 
@@ -81,7 +81,7 @@ export class PostsController extends OpenAPIHono {
       }),
       async (c) => {
         const body = await c.req.json();
-        const result = await this.blogService.createBlog({ body });
+        const result = await this.#blogService.createBlog({ body });
         return c.json(result.value, 200);
       },
     );
@@ -117,7 +117,7 @@ export class PostsController extends OpenAPIHono {
       }),
       async (c) => {
         const param = c.req.valid("param");
-        const result = await this.blogService.getBlog({ param });
+        const result = await this.#blogService.getBlog({ param });
         return result.match(
           (value) => {
             c.res.headers.append(
@@ -166,7 +166,7 @@ export class PostsController extends OpenAPIHono {
       }),
       async (c) => {
         const param = { blogId: c.req.param("blogId") };
-        const result = await this.blogService.unpublishBlog({ param });
+        const result = await this.#blogService.unpublishBlog({ param });
         if (result.isErr()) {
           throw new Error("Unexpected scenario");
         }
